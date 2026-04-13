@@ -81,6 +81,16 @@ public class MyListController {
         return "redirect:/my-lists";
     }
 
+    @GetMapping("/release/{id}/{release}")
+    public String contentsRelease(HttpSession session, Model model, @PathVariable("id") String productId,
+            @PathVariable("release") String releaseFlg) {
+        // DB取得は自分で実装
+        String UserId = (String) session.getAttribute("UserId");
+        String CompanyId = (String) session.getAttribute("CompanyId");
+        int selectCount = selectMyLists.UpdateMyLists(UserId, CompanyId, productId, releaseFlg);
+        return "redirect:/my-lists";
+    }
+
     @GetMapping("/delete/{id}")
     public String listsDelete(HttpSession session, Model model, @PathVariable("id") String productId) {
         // DB取得は自分で実装

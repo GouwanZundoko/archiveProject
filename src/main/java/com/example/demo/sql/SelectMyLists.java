@@ -312,4 +312,22 @@ public class SelectMyLists {
         query.setParameter("company_id", companyId);
         return query.executeUpdate();
     }
+
+    @Transactional
+    public int UpdateMyLists(String userId, String companyId, String listsId, String releaseFlg) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" UPDATE c002_lists_info SET ");
+        sb.append("     show_auth = :show_auth ");
+        sb.append(" WHERE lists_id = :listsId ");
+        sb.append("   AND user_id = :userId ");
+        sb.append("   AND company_id = :companyId ");
+
+        Query query = entityManager.createNativeQuery(sb.toString());
+        query.setParameter("listsId", listsId);
+        query.setParameter("userId", userId);
+        query.setParameter("companyId", companyId);
+        query.setParameter("show_auth", releaseFlg);
+
+        return query.executeUpdate();
+    }
 }
