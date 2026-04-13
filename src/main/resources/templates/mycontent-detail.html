@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>コンテンツ詳細</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+.thumbnail {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+}
+.overlay {
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background: rgba(0,0,0,0.4);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+</style>
+</head>
+
+<body class="bg-light">
+
+<div class="container py-4">
+
+    <!-- ヘッダー -->
+    <div class="d-flex align-items-center mb-4">
+        <button class="btn btn-outline-secondary me-3" onclick="history.back()">←</button>
+        <div>
+            <h3 th:text="${content.title}"></h3>
+            <small th:text="${content.type}"></small>
+        </div>
+    </div>
+
+    <!-- サムネ -->
+    <div class="card mb-4 position-relative">
+        <img th:src="${content.thumbnailUrl}" class="thumbnail">
+
+        <!-- 動画の場合 -->
+        <div th:if="${content.type == 'video'}" class="overlay">
+            <button class="btn btn-light">▶</button>
+        </div>
+    </div>
+
+    <!-- メタ情報 -->
+    <div class="mb-3 text-muted">
+        <span th:text="${content.author}"></span> /
+        <span th:text="${content.createdAt}"></span>
+    </div>
+
+    <!-- タグ -->
+    <div class="mb-4">
+        <span class="badge bg-secondary me-1"
+              th:each="tag : ${tags}"
+              th:text="${tag}">
+        </span>
+    </div>
+
+    <hr>
+
+    <!-- 説明 -->
+    <div class="mb-4">
+        <h5>説明</h5>
+        <pre th:text="${content.description}"></pre>
+    </div>
+
+    <!-- ドキュメント -->
+    <div th:if="${content.type == 'document'}" class="card p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>ドキュメントファイル</div>
+            <a th:href="${content.url}" target="_blank" class="btn btn-outline-primary">開く</a>
+        </div>
+    </div>
+
+    <!-- マークアップ -->
+    <div th:if="${content.type == 'markup'}" class="card p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>コードファイル</div>
+            <a th:href="${content.url}" target="_blank" class="btn btn-outline-primary">表示</a>
+        </div>
+    </div>
+    
+    <!-- ===== リスト内コンテンツ ===== -->
+    <div th:if="${listContents != null and listContents.size() > 0}">
+        <hr>
+        <h5>リスト内コンテンツ</h5>
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <a th:each="item : ${listContents}"
+               th:href="@{/contents/view/{id}(id=${item.contentsId}, listId=${listId})}"
+               th:class="${item.contentsId == currentId} ? 'btn btn-primary' : 'btn btn-outline-primary'">
+
+                <span th:text="${item.contentsTitle}"></span>
+
+            </a>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

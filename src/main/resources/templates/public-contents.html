@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Public Contents</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+<body>
+
+<!-- ヘッダー -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">コンテンツプラットフォーム</a>
+        <div>
+            <a class="btn btn-primary" href="/public-contents">公開コンテンツ</a>
+            <a class="btn btn-outline-secondary" href="/public-lists">公開リスト</a>
+            <a class="btn btn-outline-secondary" href="/my-contents">マイコンテンツ</a>
+            <a class="btn btn-outline-secondary" href="/my-lists">マイリスト</a>
+            <a class="btn btn-outline-dark" href="/">ログアウト</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h2>公開コンテンツ一覧</h2>
+
+    <div class="row">
+        <div class="col-md-4 mb-4" th:each="item : ${lists}">
+            <div class="card shadow-sm">
+
+                <!-- 画像（ある場合） -->
+                <img th:if="${item.imageUrl != null}"
+                     th:src="@{${item.imageUrl}}"
+                     class="card-img-top"/>
+
+                <!-- 画像（ない場合） -->
+                <img th:if="${item.imageUrl == null}"
+                     src="/img/no-image.png"
+                     class="card-img-top"/>
+
+                <div class="card-body">
+
+                    <!-- タイトル -->
+                    <h5 class="card-title"
+                        th:text="${item.contentsTitle}"></h5>
+
+                    <!-- 説明 -->
+                    <p class="card-text text-muted"
+                       th:text="${#strings.abbreviate(item.contentsText, 80)}">
+                    </p>
+
+                    <!-- 作成者 -->
+                    <div class="mb-2 text-muted small">
+                        作成者: <span th:text="${item.userId}"></span>
+                    </div>
+
+                    <!-- ボタン -->
+                    <div class="d-flex gap-2">
+
+                        <!-- 閲覧 -->
+                        <a th:href="@{'/contents/view/' + ${item.contentsId}}"
+                           class="btn btn-primary btn-sm">
+                            閲覧
+                        </a>
+
+                        <!-- 編集 -->
+                        <a th:if="${item.showAuth == '1'}"
+                           th:href="@{'/contents/edit/' + ${item.contentsId}}"
+                           class="btn btn-warning btn-sm">
+                            編集
+                        </a>
+                        
+                        <!-- コンテンツ非公開 -->
+                        <a th:if="${item.showAuth == '1' && item.showPublicAuth == '1'}"
+                           th:href="@{'/contents/release/' + ${item.contentsId} + '/0'}"
+                           class="btn btn-primary btn-sm">
+                            コンテンツ非公開
+                        </a>
+
+                        <!-- コンテンツインポート -->
+                        <a th:if="${item.showAuth == null || item.showAuth == '' || item.showAuth == 'null'}"
+                           th:href="@{'/contents/import/' + ${item.contentsId}}"
+                           class="btn btn-primary btn-sm">
+                            コンテンツインポート
+                        </a>
+                    </div>
+
+                    <!-- hidden -->
+                    <input type="hidden" th:value="${item.tag}" />
+                    <input type="hidden" th:value="${item.movieUrl}" />
+                    <input type="hidden" th:value="${item.fileUrl}" />
+                    <input type="hidden" th:value="${item.companyId}" />
+                    <input type="hidden" th:value="${item.showAuth}" />
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

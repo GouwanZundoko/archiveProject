@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>マイリスト</title>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+
+<!-- ヘッダー -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">コンテンツプラットフォーム</a>
+        <div>
+            <a class="btn btn-primary" href="/public-contents">公開コンテンツ</a>
+            <a class="btn btn-outline-secondary" href="/public-lists">公開リスト</a>
+            <a class="btn btn-outline-secondary" href="/my-contents">マイコンテンツ</a>
+            <a class="btn btn-outline-secondary" href="/my-lists">マイリスト</a>
+            <a class="btn btn-outline-dark" href="/">ログアウト</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h2>マイリスト一覧</h2>
+
+    <div class="row">
+        <div class="col-md-4 mb-3" th:each="list : ${lists}">
+            <div class="card">
+                <div class="card-body">
+
+                    <!-- タイトル -->
+                    <h5 th:text="${list.listsTitle}"></h5>
+
+                    <!-- 本文 -->
+                    <p th:text="${list.listsText != null ? list.listsText : '内容なし'}"></p>
+
+                    <!-- 追加ボタン -->
+                    <button class="btn btn-success btn-sm"
+                            onclick="openModal()">コンテンツ追加</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 追加されたコンテンツ -->
+    <div id="selectedArea" class="row mt-4"></div>
+</div>
+
+<!-- ================= モーダル ================= -->
+<div id="modal"
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5);">
+
+    <div style="background:#fff; width:80%; height:80%; margin:5% auto; padding:15px; overflow:auto;">
+
+        <!-- 閉じる -->
+        <div style="text-align:right;">
+            <button onclick="closeModal()">×</button>
+        </div>
+
+        <!-- コンテンツ一覧 -->
+        <div class="row">
+            <div class="col-md-3 mb-3" th:each="item : ${contentsList}">
+                <div class="card position-relative">
+
+                    <!-- タイトル -->
+                    <div style="position:absolute; top:5px; left:5px; font-weight:bold;"
+                         th:text="${item.contentsTitle}"></div>
+
+                    <!-- 画像 -->
+                    <img class="card-img-top"
+                         th:src="@{'/uploads/' + ${item.imageUrl}}"
+                         style="height:120px; object-fit:cover;">
+
+                    <!-- テキスト -->
+                    <div class="card-body">
+                        <p th:text="${item.contentsText}"></p>
+                    </div>
+
+                    <!-- hidden -->
+                    <input type="hidden" th:value="${item.contentsId}">
+                    <input type="hidden" th:value="${item.tag}">
+                    <input type="hidden" th:value="${item.userId}">
+
+                    <!-- 追加 -->
+                    <button class="btn btn-primary btn-sm"
+                            style="position:absolute; bottom:5px; right:5px;"
+                            onclick="addItem(this)">
+                        追加
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 下部 -->
+        <div style="text-align:center; margin-top:10px;">
+            <button class="btn btn-success">完了</button>
+            <button class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- ================= JS ================= -->
+<script>
+function openModal() {
+    document.getElementById("modal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+function addItem(btn) {
+    const card = btn.closest(".card");
+    const clone = card.cloneNode(true);
+
+    // 追加ボタン削除
+    clone.querySelector("button").remove();
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "col-md-3 mb-3";
+    wrapper.appendChild(clone);
+
+    document.getElementById("selectedArea").appendChild(wrapper);
+}
+</script>
+
+</body>
+</html>
