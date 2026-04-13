@@ -30,7 +30,7 @@ public class SelectMyLists {
         sb.append("   , c002.show_auth ");
         sb.append("   , c002.created_at ");
         sb.append("   , c002.updated_at ");
-        sb.append("     ,m002.show_auth ");
+        sb.append("   , m002.show_auth ");
         sb.append(" FROM ");
         sb.append("     m002_mylists_info m002 ");
         sb.append("     LEFT JOIN c002_lists_info c002 ");
@@ -42,6 +42,56 @@ public class SelectMyLists {
         Query query = entityManager.createNativeQuery(sb.toString());
         query.setParameter("user_id", UserId);
         query.setParameter("company_id", CompanyId);
+
+        List<Object[]> result = query.getResultList();
+
+        List<MyListsDto> dtoList = new ArrayList<>();
+
+        for (Object[] row : result) {
+            MyListsDto dto = new MyListsDto();
+
+            dto.setListsId(String.valueOf(row[0]));
+            dto.setCompanyId(String.valueOf(row[1]));
+            dto.setUserId(String.valueOf(row[2]));
+            dto.setListsTitle((String) row[3]);
+            dto.setListsText((String) row[4]);
+            dto.setShowPublicAuth(String.valueOf(row[5]));
+            dto.setCreatedAt(String.valueOf(row[6]));
+            dto.setUpdatedAt(String.valueOf(row[7]));
+            dto.setShowAuth(String.valueOf(row[8]));
+
+            dtoList.add(dto);
+        }
+
+        return dtoList;
+    }
+
+    public List<MyListsDto> GetOneMyLists(String UserId, String CompanyId, String ListId) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(" SELECT ");
+        sb.append("     c002.lists_id ");
+        sb.append("   , c002.company_id ");
+        sb.append("   , c002.user_id ");
+        sb.append("   , c002.lists_title ");
+        sb.append("   , c002.lists_text ");
+        sb.append("   , c002.show_auth ");
+        sb.append("   , c002.created_at ");
+        sb.append("   , c002.updated_at ");
+        sb.append("   , m002.show_auth ");
+        sb.append(" FROM ");
+        sb.append("     m002_mylists_info m002 ");
+        sb.append("     LEFT JOIN c002_lists_info c002 ");
+        sb.append("         ON c002.lists_id = m002.lists_id ");
+        sb.append(" WHERE ");
+        sb.append("     m002.company_id = :company_id ");
+        sb.append("     AND m002.user_id = :user_id ");
+        sb.append("     AND m002.lists_id = :lists_id ");
+
+        Query query = entityManager.createNativeQuery(sb.toString());
+        query.setParameter("user_id", UserId);
+        query.setParameter("company_id", CompanyId);
+        query.setParameter("lists_id", ListId);
 
         List<Object[]> result = query.getResultList();
 
@@ -211,5 +261,55 @@ public class SelectMyLists {
 
             query.executeUpdate();
         }
+    }
+
+    @Transactional
+    public int DeleteMyLists(String userId, String companyId, String listsId) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" DELETE FROM ");
+        sb.append("     m002_mylists_info ");
+        sb.append(" WHERE lists_id = :lists_id ");
+        sb.append("   AND user_id = :user_Id ");
+        sb.append("   AND company_id = :company_Id ");
+
+        Query query = entityManager.createNativeQuery(sb.toString());
+        query.setParameter("lists_id", listsId);
+        query.setParameter("user_Id", userId);
+        query.setParameter("company_Id", companyId);
+        return query.executeUpdate();
+    }
+
+    @Transactional
+    public int DeletePublicLists(String userId, String companyId, String listsId) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" DELETE FROM ");
+        sb.append("     c002_lists_info ");
+        sb.append(" WHERE ");
+        sb.append("     lists_id = :lists_id ");
+        sb.append("     AND user_id = :user_id ");
+        sb.append("     AND company_id = :company_id ");
+
+        Query query = entityManager.createNativeQuery(sb.toString());
+        query.setParameter("lists_id", listsId);
+        query.setParameter("user_id", userId);
+        query.setParameter("company_id", companyId);
+        return query.executeUpdate();
+    }
+
+    @Transactional
+    public int DeletePublicContentsList(String userId, String companyId, String listsId) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" DELETE FROM ");
+        sb.append("     c003_lists_contents ");
+        sb.append(" WHERE ");
+        sb.append("     lists_id = :lists_id ");
+        sb.append("     AND user_id = :user_id ");
+        sb.append("     AND company_id = :company_id ");
+
+        Query query = entityManager.createNativeQuery(sb.toString());
+        query.setParameter("lists_id", listsId);
+        query.setParameter("user_id", userId);
+        query.setParameter("company_id", companyId);
+        return query.executeUpdate();
     }
 }

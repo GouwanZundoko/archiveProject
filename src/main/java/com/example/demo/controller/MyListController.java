@@ -80,4 +80,25 @@ public class MyListController {
 
         return "redirect:/my-lists";
     }
+
+    @GetMapping("/delete/{id}")
+    public String listsDelete(HttpSession session, Model model, @PathVariable("id") String productId) {
+        // DB取得は自分で実装
+        String UserId = (String) session.getAttribute("UserId");
+        String CompanyId = (String) session.getAttribute("CompanyId");
+        // DTO使用
+        List<MyListsDto> lists = selectMyLists.GetOneMyLists(UserId, CompanyId, productId);
+        MyListsDto dto = lists.get(0);
+        String Auth = dto.getShowAuth();
+        // マイコンテンツ側を削除
+        int deleteMyCount = selectMyLists.DeleteMyLists(UserId, CompanyId, productId);
+
+        if ("1".equals(Auth)) {
+            // 自分で作成したコンテンツの場合コンテンツも削除
+            int deletePublicCount = selectMyLists.DeletePublicLists(UserId, CompanyId, productId);
+            deletePublicCount = selectMyLists.DeletePublicContentsList(UserId, CompanyId, productId);
+        }
+
+        return "redirect:/my-lists";
+    }
 }

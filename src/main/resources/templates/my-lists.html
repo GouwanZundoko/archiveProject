@@ -52,20 +52,20 @@
 
                     <!-- コンテンツ公開 -->
                     <a th:if="${list.showAuth == '1' && list.showPublicAuth == '0'}"
-                        th:href="@{'/lists/release/' + ${list.listsId} + '/1'}"
+                        th:href="@{'/my-lists/release/' + ${list.listsId} + '/1'}"
                         class="btn btn-primary btn-sm">
                         コンテンツ公開
                     </a>
                     
                     <!-- コンテンツ非公開 -->
                     <a th:if="${list.showAuth == '1' && list.showPublicAuth == '1'}"
-                        th:href="@{'/lists/release/' + ${list.listsId} + '/0'}"
+                        th:href="@{'/my-lists/release/' + ${list.listsId} + '/0'}"
                         class="btn btn-primary btn-sm">
                         コンテンツ非公開
                     </a>
 
                     <!-- 削除 -->
-                    <a th:href="@{'/contents/delete/' + ${list.listsId}}" class="btn btn-warning btn-sm">
+                    <a th:href="@{'/my-lists/delete/' + ${list.listsId}}" class="btn btn-warning btn-sm">
                         削除
                     </a>
                 </div>
