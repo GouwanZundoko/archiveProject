@@ -23,91 +23,273 @@
 </nav>
 
 <div class="container mt-4">
-    <h2>マイリスト一覧</h2>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>公開リスト一覧</h2>
+    </div>
 
     <div class="row">
         <div class="col-md-4 mb-3" th:each="list : ${lists}">
             <div class="card">
                 <div class="card-body">
-
-                    <!-- タイトル -->
                     <h5 th:text="${list.listsTitle}"></h5>
-
-                    <!-- 本文 -->
                     <p th:text="${list.listsText != null ? list.listsText : '内容なし'}"></p>
 
-                    <!-- 追加ボタン -->
-                    <button class="btn btn-success btn-sm"
-                            onclick="openModal()">コンテンツ追加</button>
+                    <div th:if="${list.showAuth == '1'}">
+                        <button class="btn btn-success w-100 mt-2"
+                                th:attr="data-list-id=${list.listsId}"
+                                onclick="openModal(this)">
+                            コンテンツ追加
+                        </button>
+                    </div>
 
+                    <button class="btn btn-info w-100 mt-2"
+                            th:attr="data-list-id=${list.listsId}"
+                            onclick="openViewModal(this)">
+                        コンテンツ閲覧
+                    </button>
+
+                    <!-- コンテンツ公開 -->
+                    <a th:if="${list.showAuth == '1' && list.showPublicAuth == '0'}"
+                        th:href="@{'/public-lists/release/' + ${list.listsId} + '/1'}"
+                        class="btn btn-primary btn-sm">
+                        コンテンツ公開
+                    </a>
+                    
+                    <!-- コンテンツ非公開 -->
+                    <a th:if="${list.showAuth == '1' && list.showPublicAuth == '1'}"
+                        th:href="@{'/public-lists/release/' + ${list.listsId} + '/0'}"
+                        class="btn btn-primary btn-sm">
+                        コンテンツ非公開
+                    </a>
+
+                    <!-- コンテンツインポート -->
+                    <a th:if="${list.showAuth == null || list.showAuth == '' || list.showAuth == 'null'}"
+                        th:href="@{'/public-lists/import/' + ${list.listsId}}"
+                        class="btn btn-primary btn-sm">
+                        コンテンツインポート
+                    </a>
+                    
+                    <!-- 削除 -->
+                    <div th:if="${list.showAuth == '1'}">
+                        <a th:href="@{'/public-lists/delete/' + ${list.listsId}}" class="btn btn-warning btn-sm">
+                            削除
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- 追加されたコンテンツ -->
-    <div id="selectedArea" class="row mt-4"></div>
 </div>
 
-<!-- ================= モーダル ================= -->
-<div id="modal"
-     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+<!-- ================= リスト作成モーダル ================= -->
+<div id="createListModal"
+     style="display:none; z-index:9999; position:fixed; top:0; left:0; width:100%; height:100%;
             background:rgba(0,0,0,0.5);">
 
-    <div style="background:#fff; width:80%; height:80%; margin:5% auto; padding:15px; overflow:auto;">
+    <div style="background:#fff; width:400px; margin:10% auto; padding:20px;">
 
         <!-- 閉じる -->
+        <div style="text-align:right;">
+            <button onclick="closeCreateListModal()">×</button>
+        </div>
+
+        <h4>リスト作成</h4>
+
+        <form action="/public-lists/create-list" method="post">
+            <input type="hidden" id = "hiddenListId" name="hiddenListId">
+
+            <!-- タイトル -->
+            <div class="mb-3">
+                <label class="form-label">タイトル</label>
+                <input type="text" name="listsTitle" class="form-control" required>
+            </div>
+
+            <!-- 説明 -->
+            <div class="mb-3">
+                <label class="form-label">説明</label>
+                <textarea name="listsText" class="form-control"></textarea>
+            </div>
+
+            <!-- ボタン -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-success">作成</button>
+                <button type="button" class="btn btn-secondary" onclick="closeCreateListModal()">キャンセル</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- ================= コンテンツ追加モーダル ================= -->
+<div id="modal"
+     style="display:none; z-index:9999; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5);">
+
+    <div style="background:#fff; width:85%; height:90%; margin:3% auto; padding:15px;
+                display:flex; flex-direction:column; overflow:hidden;">
+
         <div style="text-align:right;">
             <button onclick="closeModal()">×</button>
         </div>
 
-        <!-- コンテンツ一覧 -->
-        <div class="row">
-            <div class="col-md-3 mb-3" th:each="item : ${contentsList}">
-                <div class="card position-relative">
+        <!-- 上段：コンテンツ一覧 -->
+        <div style="flex:1; overflow-y:auto; border-bottom:2px solid #ccc; padding-bottom:10px;">
+            <h5 class="mb-3">コンテンツ一覧</h5>
+            <div class="row" id="contentListArea">
+                <div class="col-md-3 mb-3" th:each="item : ${contentsList}">
+                    <div class="card position-relative"
+                         th:attr="data-contents-id=${item.contentsId},
+                                  data-tag=${item.tag},
+                                  data-user-id=${item.userId},
+                                  data-title=${item.contentsTitle},
+                                  data-text=${item.contentsText},
+                                  data-image=${item.imageUrl}">
 
-                    <!-- タイトル -->
-                    <div style="position:absolute; top:5px; left:5px; font-weight:bold;"
-                         th:text="${item.contentsTitle}"></div>
+                        <div style="position:absolute; top:5px; left:5px; font-weight:bold; z-index:1;"
+                             th:text="${item.contentsTitle}"></div>
 
-                    <!-- 画像 -->
-                    <img class="card-img-top"
-                         th:src="@{'/uploads/' + ${item.imageUrl}}"
-                         style="height:120px; object-fit:cover;">
+                        <img class="card-img-top"
+                             th:src="@{'/uploads/' + ${item.imageUrl}}"
+                             style="height:120px; object-fit:cover;"/>
 
-                    <!-- テキスト -->
-                    <div class="card-body">
-                        <p th:text="${item.contentsText}"></p>
+                        <div class="card-body pb-5">
+                            <p th:text="${item.contentsText}"></p>
+                        </div>
+
+                        <button class="btn btn-primary btn-sm add-btn"
+                                style="position:absolute; bottom:5px; right:5px;"
+                                onclick="addItem(this)">
+                            追加
+                        </button>
+
                     </div>
-
-                    <!-- hidden -->
-                    <input type="hidden" th:value="${item.contentsId}">
-                    <input type="hidden" th:value="${item.tag}">
-                    <input type="hidden" th:value="${item.userId}">
-
-                    <!-- 追加 -->
-                    <button class="btn btn-primary btn-sm"
-                            style="position:absolute; bottom:5px; right:5px;"
-                            onclick="addItem(this)">
-                        追加
-                    </button>
-
                 </div>
             </div>
         </div>
 
-        <!-- 下部 -->
-        <div style="text-align:center; margin-top:10px;">
-            <button class="btn btn-success">完了</button>
+        <!-- 下段：選択済みコンテンツ -->
+        <div style="height:220px; overflow-y:auto; padding-top:10px;">
+            <h5 class="mb-2">
+                選択済みコンテンツ
+                <span id="selectedCount" class="badge bg-secondary">0</span>
+            </h5>
+            <div class="row" id="selectedArea"></div>
+        </div>
+
+        <div style="text-align:center; margin-top:10px; flex-shrink:0;">
+            <button class="btn btn-success" onclick="submitSelected()">完了</button>
             <button class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
         </div>
 
     </div>
 </div>
 
+<!-- ================= コンテンツ閲覧モーダル ================= -->
+<div id="viewModal"
+     style="display:none; z-index:9999; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5);">
+
+    <div style="background:#fff; width:85%; height:90%; margin:3% auto; padding:15px;
+                display:flex; flex-direction:column; overflow:hidden;">
+
+        <div style="text-align:right;">
+            <button onclick="closeViewModal()">×</button>
+        </div>
+
+        <h5>リスト内コンテンツ</h5>
+
+        <div id="viewArea" class="row" style="overflow-y:auto;"></div>
+
+    </div>
+</div>
+
 <!-- ================= JS ================= -->
 <script>
-function openModal() {
+let currentListId = null;
+const selectedIds = new Set();
+
+function openViewModal(btn) {
+    currentListId = btn.getAttribute("data-list-id");
+
+    fetch(`/public-lists/selected-contents/${currentListId}`)
+        .then(res => res.json())
+        .then(data => {
+
+            const viewArea = document.getElementById("viewArea");
+            viewArea.innerHTML = "";
+
+            data.forEach(item => {
+
+                const originalCard = document.querySelector(
+                    `#contentListArea .card[data-contents-id="${item.contentsId}"]`
+                );
+
+                if (!originalCard) return;
+
+                const clone = originalCard.cloneNode(true);
+
+                // ボタン置き換え
+                let btn = clone.querySelector(".add-btn");
+                if (btn) {
+                    btn.textContent = "閲覧";
+                    btn.onclick = function () {
+                        viewItem(btn);
+                    };
+                }
+
+                viewArea.appendChild(clone);
+            });
+
+        });
+
+    document.getElementById("viewModal").style.display = "block";
+}
+
+function closeViewModal() {
+    document.getElementById("viewModal").style.display = "none";
+}
+
+function viewItem(btn) {
+    const card = btn.closest(".card");
+    const contentsId = card.getAttribute("data-contents-id");
+
+    window.location.href = `/contents/view/${contentsId}?listId=${currentListId}`;
+}
+
+function openModal(btn) {
+    currentListId = btn.getAttribute("data-list-id");
+
+    document.getElementById("hiddenListId").value = currentListId;
+
+    selectedIds.clear();
+    document.getElementById("selectedArea").innerHTML = "";
+
+    // ★既存選択取得
+    fetch(`/public-lists/selected-contents/${currentListId}`)
+        .then(res => res.json())
+        .then(data => {
+
+            data.forEach(item => {
+
+                const contentsId = item.contentsId;
+
+                // 元カード取得
+                const originalCard = document.querySelector(
+                    `#contentListArea .card[data-contents-id="${contentsId}"]`
+                );
+
+                if (!originalCard) return;
+
+                const addBtn = originalCard.querySelector(".add-btn");
+
+                // ★既存ロジック流用
+                addItem(addBtn);
+            });
+
+        });
+
     document.getElementById("modal").style.display = "block";
 }
 
@@ -117,16 +299,156 @@ function closeModal() {
 
 function addItem(btn) {
     const card = btn.closest(".card");
-    const clone = card.cloneNode(true);
+    const contentsId = card.getAttribute("data-contents-id");
 
-    // 追加ボタン削除
-    clone.querySelector("button").remove();
+    if (selectedIds.has(contentsId)) return;
+    selectedIds.add(contentsId);
+
+    // 元カードの追加ボタンを「追加済み」に
+    btn.textContent = "追加済み";
+    btn.disabled = true;
+
+    // ---- 選択エリア用カードを新規作成 ----
+    const newCard = document.createElement("div");
+    newCard.className = "card position-relative";
+
+    // 順番バッジ（右上）
+    const badge = document.createElement("div");
+    badge.className = "order-badge";
+    badge.style.cssText =
+        "position:absolute; top:-10px; right:-10px; width:24px; height:24px;" +
+        "background:#0d6efd; color:#fff; border-radius:50%;" +
+        "display:flex; align-items:center; justify-content:center;" +
+        "font-size:12px; font-weight:bold; z-index:2;";
+    badge.textContent = selectedIds.size;
+    newCard.appendChild(badge);
+
+    // タイトル
+    const titleDiv = document.createElement("div");
+    titleDiv.style.cssText = "position:absolute; top:5px; left:5px; font-weight:bold; z-index:1;";
+    titleDiv.textContent = card.getAttribute("data-title") || "";
+    newCard.appendChild(titleDiv);
+
+    // 画像
+    const img = card.querySelector("img");
+    if (img) {
+        const cloneImg = img.cloneNode(true);
+        newCard.appendChild(cloneImg);
+    }
+
+    // テキスト
+    const bodyDiv = document.createElement("div");
+    bodyDiv.className = "card-body pb-5";
+    const p = document.createElement("p");
+    p.textContent = card.getAttribute("data-text") || "";
+    bodyDiv.appendChild(p);
+    newCard.appendChild(bodyDiv);
+
+    // 削除ボタン
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn btn-danger btn-sm";
+    delBtn.style.cssText = "position:absolute; bottom:5px; right:5px;";
+    delBtn.textContent = "削除";
+    delBtn.dataset.contentsId = contentsId;
+    // ★ addEventListener で登録（onclickではなく）
+    delBtn.addEventListener("click", function () {
+        removeItem(contentsId);
+    });
+    newCard.appendChild(delBtn);
 
     const wrapper = document.createElement("div");
     wrapper.className = "col-md-3 mb-3";
-    wrapper.appendChild(clone);
+    wrapper.id = "selected-" + contentsId;
+    wrapper.appendChild(newCard);
 
     document.getElementById("selectedArea").appendChild(wrapper);
+    updateCount();
+}
+
+function removeItem(contentsId) {
+    const wrapper = document.getElementById("selected-" + contentsId);
+    if (wrapper) wrapper.remove();
+
+    // 元カードの追加ボタンを戻す
+    const originalCard = document.querySelector(
+        `#contentListArea .card[data-contents-id="${contentsId}"]`
+    );
+    if (originalCard) {
+        const originalBtn = originalCard.querySelector(".add-btn");
+        originalBtn.textContent = "追加";
+        originalBtn.disabled = false;
+    }
+
+    selectedIds.delete(contentsId);
+    updateCount();
+    renumberBadges(); // ★ 番号を振り直す
+}
+
+function updateCount() {
+    document.getElementById("selectedCount").textContent = selectedIds.size;
+}
+
+function submitSelected() {
+
+    const wrappers = document.querySelectorAll("#selectedArea .col-md-3");
+
+    if (wrappers.length === 0) {
+        alert("コンテンツが選択されていません。");
+        return;
+    }
+
+    const listId = document.getElementById("hiddenListId").value;
+
+    // ★ [order, contentsId] の配列
+    let dataList = [];
+
+    wrappers.forEach(wrapper => {
+        const card = wrapper.querySelector(".card");
+        const contentsId = wrapper.id.replace("selected-", "");
+        const order = card.querySelector(".order-badge").textContent;
+
+        dataList.push({
+            order: parseInt(order),
+            contentsId: contentsId
+        });
+    });
+
+    // ★ order順にソート（安全対策）
+    dataList.sort((a, b) => a.order - b.order);
+
+    // ★ contentsIdだけの配列に変換
+    const contentsIds = dataList.map(d => d.contentsId);
+
+    // ★送信
+    fetch("/public-lists/add-contents", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            listId: listId,
+            contentsIds: contentsIds
+        })
+    }).then(() => {
+        location.reload();
+    });
+}
+
+// 選択済みカードのバッジ番号を 1,2,3... に振り直す
+function renumberBadges() {
+    const wrappers = document.querySelectorAll("#selectedArea .col-md-3");
+    wrappers.forEach((wrapper, index) => {
+        const badge = wrapper.querySelector(".order-badge");
+        if (badge) badge.textContent = index + 1;
+    });
+}
+
+function openCreateListModal() {
+    document.getElementById("createListModal").style.display = "block";
+}
+
+function closeCreateListModal() {
+    document.getElementById("createListModal").style.display = "none";
 }
 </script>
 

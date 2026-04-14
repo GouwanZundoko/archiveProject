@@ -38,12 +38,14 @@
                     <h5 th:text="${list.listsTitle}"></h5>
                     <p th:text="${list.listsText != null ? list.listsText : '内容なし'}"></p>
 
-                    <button class="btn btn-success w-100 mt-2"
-                            th:attr="data-list-id=${list.listsId}"
-                            onclick="openModal(this)">
-                        コンテンツ追加
-                    </button>
-
+                    <div th:if="${list.showAuth == '1'}">
+                        <button class="btn btn-success w-100 mt-2"
+                                th:attr="data-list-id=${list.listsId}"
+                                onclick="openModal(this)">
+                            コンテンツ追加
+                        </button>
+                    </div>
+                    
                     <button class="btn btn-info w-100 mt-2"
                             th:attr="data-list-id=${list.listsId}"
                             onclick="openViewModal(this)">
