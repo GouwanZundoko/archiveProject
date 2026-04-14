@@ -44,6 +44,7 @@ public class ContentsDetail {
         content.put("title", dto.getContentsTitle());
         content.put("description", dto.getContentsText());
         content.put("thumbnailUrl", dto.getImageUrl());
+        content.put("movieUrl", dto.getMovieUrl());
 
         // type判定（重要）
         String type;

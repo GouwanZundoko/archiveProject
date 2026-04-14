@@ -151,7 +151,7 @@
                              th:text="${item.contentsTitle}"></div>
 
                         <img class="card-img-top"
-                             th:src="@{'/uploads/' + ${item.imageUrl}}"
+                             th:src="@{${item.imageUrl}}"
                              style="height:120px; object-fit:cover;"/>
 
                         <div class="card-body pb-5">

@@ -40,13 +40,16 @@
     </div>
 
     <!-- サムネ -->
-    <div class="card mb-4 position-relative">
+    <div class="card mb-4">
         <img th:src="${content.thumbnailUrl}" class="thumbnail">
+    </div>
 
-        <!-- 動画の場合 -->
-        <div th:if="${content.type == 'video'}" class="overlay">
-            <button class="btn btn-light">▶</button>
-        </div>
+    <!-- 動画 -->
+    <div class="card mb-4">
+        <video controls class="w-100">
+            <source th:src="@{${content['movieUrl']}}" type="video/mp4">
+            動画を再生できません
+        </video>
     </div>
 
     <!-- メタ情報 -->
