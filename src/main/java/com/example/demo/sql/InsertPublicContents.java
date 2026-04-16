@@ -4,9 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import java.util.List;
-import java.util.ArrayList;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component

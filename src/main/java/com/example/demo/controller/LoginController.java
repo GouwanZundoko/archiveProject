@@ -35,7 +35,7 @@ public class LoginController {
         if (getResultList.size() > 0) {
             // ログイン成功時は公開コンテンツへリダイレクト
             String CompanyId = (String) getResultList.get(0)[0];
-            String UserId = (String) getResultList.get(0)[1];
+            String UserId = String.valueOf(getResultList.get(0)[1]);
             session.setAttribute("CompanyId", CompanyId);
             session.setAttribute("UserId", UserId);
             return "redirect:/public-contents";

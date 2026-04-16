@@ -21,7 +21,7 @@
 
             <form th:action="@{/login}" method="post">
                 
-                <div class="mb-3">
+                <!--div class="mb-3">
                     <label for="companyCode" class="form-label">会社コード</label>
                     <input type="text" 
                            class="form-control"
@@ -29,7 +29,9 @@
                            name="companyCode"
                            placeholder="会社コードを入力"
                            required>
-                </div>
+                </div-->
+
+                <input type="hidden" id="companyCode" name="companyCode" value="" />
 
                 <div class="mb-3">
                     <label for="email" class="form-label">メールアドレス</label>
@@ -63,7 +65,11 @@
                     パスワードを忘れた方はこちら
                 </a>
             </div>
-
+            <div class="text-center mt-3">
+                <a th:href="@{/regist}" class="btn btn-link">
+                    会員登録時の処理はこちら
+                </a>
+            </div>
         </div>
     </div>
 </div>

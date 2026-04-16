@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>登録</title>
+</head>
+<body>
+    <h2><span th:text="${result}"></span></h2>
+    <p>メール: <span th:text="${email}"></span></p>
+    <p>パスワード: <span th:text="${password}"></span></p>
+    <div class="text-center mt-3">
+        <a th:href="@{/login}" class="btn btn-link">
+            ログイン画面に戻る
+        </a>
+    </div>
+</body>
+</html>

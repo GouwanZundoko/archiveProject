@@ -1,19 +1,18 @@
 package com.example.demo.controller;
 
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
 import com.example.demo.service.MailService;
 import com.example.demo.sql.InsertRegistSQL;
-import org.springframework.ui.Model;
 
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @Controller
-public class PasswordResetController {
+public class RegistController {
 
     @Autowired
     InsertRegistSQL registSQL;
@@ -24,13 +23,14 @@ public class PasswordResetController {
     @Autowired
     private HttpSession session;
 
-    @GetMapping("/password-reset")
-    public String showPasswordResetForm() {
-        return "password-reset";
+    @GetMapping("/regist")
+    public String showRegistPage() {
+        return "regist";
     }
 
-    @PostMapping("/password-reset-send")
-    public String handlePasswordReset(@RequestParam String email,
+    @PostMapping("/send-mail")
+    @ResponseBody
+    public String sendMail(@RequestParam String email,
             @RequestParam String password) {
 
         String token = UUID.randomUUID().toString();
@@ -38,14 +38,15 @@ public class PasswordResetController {
         // email + password を保存
         mailService.saveToken(email, password, token);
 
-        String url = "http://localhost:8080/passChange?token=" + token;
+        String url = "http://localhost:8080/verify?token=" + token;
 
         mailService.sendMail(email, url);
-        return "redirect:/password-reset";
+
+        return "メール送信完了";
     }
 
-    @GetMapping("/passChange")
-    public String passChangVerify(@RequestParam String token) {
+    @GetMapping("/verify")
+    public String verify(@RequestParam String token) {
 
         String[] data = mailService.findByToken(token);
 
@@ -59,20 +60,22 @@ public class PasswordResetController {
         session.setAttribute("email", email);
         session.setAttribute("password", password);
 
-        return "redirect:/passChangeComplete";
+        return "redirect:/complete";
     }
 
-    @GetMapping("/passChangeComplete")
-    public String changeComplete(Model model) {
+    @GetMapping("/complete")
+    public String complete(Model model) {
         String password = (String) session.getAttribute("password");
         String email = (String) session.getAttribute("email");
         String result = "";
         int registCount = registSQL.GetUserInfo(email);
-        if (email == null || password == null || registCount == 0) {
+        if (email == null || password == null) {
             result = "データが存在しません";
+        } else if (registCount > 0) {
+            result = "既に登録されています";
         } else {
-            registSQL.UpdateUserInfo(email, password);
-            result = "更新完了しました";
+            registSQL.InsertUserInfo(email, password);
+            result = "登録完了しました";
         }
         // セッションを破棄して見せない
         session.invalidate();
@@ -81,4 +84,5 @@ public class PasswordResetController {
         model.addAttribute("password", password);
         return "complete";
     }
+
 }
