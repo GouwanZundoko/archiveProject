@@ -10,10 +10,16 @@ import com.example.demo.sql.SelectMyOneContents;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.ResponseEntity;
+import java.nio.file.Path;
 import jakarta.servlet.http.HttpSession;
-
+import org.springframework.http.HttpHeaders;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
+import org.springframework.http.MediaType;
 
 @Controller
 public class ContentsDetail {
@@ -45,6 +51,7 @@ public class ContentsDetail {
         content.put("description", dto.getContentsText());
         content.put("thumbnailUrl", dto.getImageUrl());
         content.put("movieUrl", dto.getMovieUrl());
+        content.put("fileUrl", dto.getFileUrl());
 
         // type判定（重要）
         String type;
@@ -87,5 +94,18 @@ public class ContentsDetail {
         model.addAttribute("listId", listId);
 
         return "mycontent-detail";
+    }
+
+    @GetMapping("/download/files/document/{fileName}")
+    public ResponseEntity<Resource> download(HttpSession session, @PathVariable String fileName) throws IOException {
+
+        Path path = Paths.get("C:/app/uploads/document/" + fileName);
+        Resource resource = new UrlResource(path.toUri());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM) // ←これ重要
+                .body(resource);
     }
 }

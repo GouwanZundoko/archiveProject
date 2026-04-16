@@ -74,20 +74,11 @@
         <pre th:text="${content.description}"></pre>
     </div>
 
-    <!-- ドキュメント -->
-    <div th:if="${content.type == 'document'}" class="card p-3 mb-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>ドキュメントファイル</div>
-            <a th:href="${content.url}" target="_blank" class="btn btn-outline-primary">開く</a>
-        </div>
-    </div>
-
     <!-- マークアップ -->
-    <div th:if="${content.type == 'markup'}" class="card p-3 mb-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>コードファイル</div>
-            <a th:href="${content.url}" target="_blank" class="btn btn-outline-primary">表示</a>
-        </div>
+    <div th:if="${content.fileUrl != null and !#strings.isEmpty(content.fileUrl)}" class="card p-3 mb-3">
+        <a th:href="@{'/download' + ${content.fileUrl}}" class="btn btn-primary btn-sm">
+            ファイルダウンロード
+        </a>
     </div>
     
     <!-- ===== リスト内コンテンツ ===== -->

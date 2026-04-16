@@ -23,6 +23,7 @@ import java.util.Map;
 public class PublicListsController {
 
     private final PublicListRepository repository;
+
     @Autowired
     SelectPublicLists selectPublicLists;
 
