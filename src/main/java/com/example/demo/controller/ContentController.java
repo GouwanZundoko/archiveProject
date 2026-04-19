@@ -81,21 +81,21 @@ public class ContentController {
         if (thumbnailFile == null || thumbnailFile.isEmpty()) {
             thumbnailPath = imageUrl;
         } else {
-            thumbnailPath = saveFile(thumbnailFile, baseDir + "thumbnail/");
+            thumbnailPath = saveFile(thumbnailFile, baseDir + "thumbnail/", imageUrl);
         }
 
         String videoPath = "";
         if (videoFile == null || videoFile.isEmpty()) {
             videoPath = movieUrl;
         } else {
-            videoPath = saveFile(videoFile, baseDir + "video/");
+            videoPath = saveFile(videoFile, baseDir + "video/", movieUrl);
         }
 
         String documentPath = "";
         if (documentFile == null || documentFile.isEmpty()) {
             documentPath = fileUrl;
         } else {
-            documentPath = saveFile(documentFile, baseDir + "document/");
+            documentPath = saveFile(documentFile, baseDir + "document/", fileUrl);
         }
 
         if (!"none".equals(contentsId)) {
@@ -128,15 +128,25 @@ public class ContentController {
         return "redirect:/my-contents";
     }
 
-    private String saveFile(MultipartFile file, String dir) {
+    private String saveFile(MultipartFile file, String dir, String oldFileUrl) {
         if (file == null || file.isEmpty()) {
             return "";
         }
 
         try {
+
             // ディレクトリ作成
             Path dirPath = Paths.get(dir);
             Files.createDirectories(dirPath);
+
+            // 旧ファイル削除
+            if (oldFileUrl != null && !(oldFileUrl.isEmpty())) {
+                // /files/content/test.pdf
+                String oldFileName = Paths.get(oldFileUrl).getFileName().toString();
+                // 実ファイルパスに変換
+                Path oldFilePath = dirPath.resolve(oldFileName);
+                Files.deleteIfExists(oldFilePath);
+            }
 
             // ファイル名（重複防止）
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
