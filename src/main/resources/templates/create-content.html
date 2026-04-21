@@ -8,31 +8,75 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <style>
-    .preview-box {
-        min-height: 500px;
-        background: #fafafa;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 20px;
-    }
+body {
+    background: #f8f9fa;
+}
 
-    .thumbnail-preview {
-        max-width: 100%;
-        max-height: 250px;
-        object-fit: contain;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        margin-bottom: 15px;
-    }
+/* プレビュー全体 */
+.preview-box {
+    min-height: 700px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 24px;
+}
 
-    .video-preview {
-        width: 100%;
-        max-height: 300px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-    }
+/* mycontent-detail と同じ */
+.thumbnail {
+    width: 100%;
+    aspect-ratio: 16 / 4.5;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* markdown表示 */
+.description-box {
+    white-space: normal;
+    font-family: inherit;
+    background: transparent;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.description-box h1,
+.description-box h2,
+.description-box h3 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.description-box p {
+    margin-bottom: 1rem;
+}
+
+.description-box pre {
+    background: #f5f5f5;
+    padding: 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.description-box code {
+    background: #f1f1f1;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* 動画 */
+.movie-box {
+    width: 80%;
+    margin-left: 0;
+}
+
+/* ダウンロード */
+.download-box {
+    width: 25%;
+    min-width: 180px;
+    margin-left: 0;
+}
 </style>
-
 </head>
 <body>
 
@@ -46,7 +90,7 @@
 
         <div class="row">
 
-            <!-- 左側：入力フォーム -->
+            <!-- 左：入力 -->
             <div class="col-md-6">
 
                 <!-- タイトル -->
@@ -72,16 +116,18 @@
                 <!-- 説明 -->
                 <div class="mb-3">
                     <label class="form-label">説明（Markdown）</label>
-                    <textarea name="description"
-                              id="description"
-                              class="form-control"
-                              rows="10"
-                              th:text="${content.contentsText}"></textarea>
+                    <textarea
+                        name="description"
+                        id="description"
+                        class="form-control"
+                        rows="10"
+                        th:text="${content.contentsText}"></textarea>
                 </div>
 
                 <!-- サムネ -->
                 <div class="mb-3">
                     <label class="form-label">サムネイル</label>
+
                     <input type="file"
                            id="thumbnailFile"
                            name="thumbnailFile"
@@ -95,8 +141,9 @@
                 </div>
 
                 <!-- 動画 -->
-                <div class="mb-3" id="videoArea">
+                <div class="mb-3">
                     <label class="form-label">動画ファイル</label>
+
                     <input type="file"
                            id="videoFile"
                            name="videoFile"
@@ -110,8 +157,9 @@
                 </div>
 
                 <!-- ファイル -->
-                <div class="mb-3" id="fileArea">
+                <div class="mb-3">
                     <label class="form-label">ファイル</label>
+
                     <input type="file"
                            id="documentFile"
                            name="documentFile"
@@ -130,152 +178,199 @@
                 <input type="hidden"
                        id="contentsId"
                        name="contentsId"
-                       th:value="${contentsId}" />
-
+                       th:value="${contentsId}">
             </div>
 
-            <!-- 右側：プレビュー -->
+            <!-- 右：プレビュー -->
             <div class="col-md-6">
 
                 <label class="form-label fw-bold">プレビュー</label>
 
-                <div class="preview-box" style="min-height: 100%;">
+                <div class="preview-box">
+
+                    <!-- サムネ -->
+                    <div class="card mb-4" id="thumbnailCard" style="display:none;">
+                        <img id="thumbnailPreview"
+                             class="thumbnail"
+                             alt="thumbnail">
+                    </div>
 
                     <!-- タイトル -->
-                    <h2 id="previewTitle" class="mb-3"></h2>
+                    <div class="mb-4">
+                        <h3 id="previewTitle"></h3>
+                    </div>
 
                     <!-- タグ -->
-                    <div id="previewTags" class="mb-3 text-muted"></div>
+                    <div class="mb-4">
+                        <div id="previewTags"></div>
+                    </div>
 
-                    <!-- サムネイル -->
-                    <img id="thumbnailPreview"
-                        class="thumbnail-preview"
-                        style="display:none;">
+                    <!-- メタ -->
+                    <div class="mb-3 text-muted">
+                        テストユーザー / 1111/11/11
+                    </div>
+
+                    <hr>
+
+                    <!-- 説明 -->
+                    <div class="mb-4">
+                        <div id="previewDescription"
+                             class="description-box">
+                        </div>
+                    </div>
 
                     <!-- 動画 -->
-                    <video id="videoPreview"
-                        class="video-preview"
-                        controls
-                        style="display:none;">
-                    </video>
+                    <div id="videoBox"
+                         class="card mb-4 movie-box"
+                         style="display:none;">
 
-                    <!-- Markdown本文 -->
-                    <div id="preview"></div>
+                        <video id="videoPreview"
+                               controls
+                               class="w-100">
+                        </video>
+                    </div>
+
+                    <!-- ダウンロード -->
+                    <div id="downloadBox"
+                         class="download-box mb-4"
+                         style="display:none;">
+
+                        <button
+                            type="button"
+                            class="btn btn-primary w-100">
+                            ダウンロード
+                        </button>
+                    </div>
 
                 </div>
-
             </div>
 
         </div>
     </form>
 </div>
-<style>
-.preview-box {
-    min-height: 700px; /* 保存ボタン付近まで確保 */
-    background: #fafafa;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-}
-</style>
+
 <script>
-    const textarea = document.getElementById("description");
-    const preview = document.getElementById("preview");
+const titleInput = document.getElementById("title");
+const tagsInput = document.getElementById("tags");
+const descriptionInput = document.getElementById("description");
 
-    const thumbnailFile = document.getElementById("thumbnailFile");
-    const thumbnailPreview = document.getElementById("thumbnailPreview");
-    const imageUrl = document.getElementById("imageUrl");
+const thumbnailFile = document.getElementById("thumbnailFile");
+const imageUrl = document.getElementById("imageUrl");
+const thumbnailPreview = document.getElementById("thumbnailPreview");
+const thumbnailCard = document.getElementById("thumbnailCard");
 
-    const videoFile = document.getElementById("videoFile");
-    const videoPreview = document.getElementById("videoPreview");
-    const movieUrl = document.getElementById("movieUrl");
+const videoFile = document.getElementById("videoFile");
+const movieUrl = document.getElementById("movieUrl");
+const videoPreview = document.getElementById("videoPreview");
+const videoBox = document.getElementById("videoBox");
 
-    function renderMarkdown() {
-        preview.innerHTML = marked.parse(textarea.value || "");
+const documentFile = document.getElementById("documentFile");
+const fileUrl = document.getElementById("fileUrl");
+const downloadBox = document.getElementById("downloadBox");
+
+const previewTitle = document.getElementById("previewTitle");
+const previewTags = document.getElementById("previewTags");
+const previewDescription = document.getElementById("previewDescription");
+
+/* 初期表示も含めて全部ここで制御 */
+function initializePreview() {
+    renderTitle();
+    renderTags();
+    renderDescription();
+    renderThumbnail();
+    renderVideo();
+    renderDownloadButton();
+}
+
+function renderTitle() {
+    previewTitle.textContent =
+        titleInput.value || "タイトル未入力";
+}
+
+function renderTags() {
+    const raw = tagsInput.value || "";
+    previewTags.innerHTML = "";
+
+    if (!raw.trim()) return;
+
+    raw.split(",").forEach(tag => {
+        const span = document.createElement("span");
+        span.className = "badge bg-secondary me-1";
+        span.textContent = tag.trim();
+        previewTags.appendChild(span);
+    });
+}
+
+function renderDescription() {
+    previewDescription.innerHTML =
+        marked.parse(descriptionInput.value || "");
+}
+
+function renderThumbnail() {
+    const file = thumbnailFile.files[0];
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            thumbnailPreview.src = e.target.result;
+            thumbnailCard.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+        return;
     }
 
-    function previewImage() {
-        const file = thumbnailFile.files[0];
-
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                thumbnailPreview.src = e.target.result;
-                thumbnailPreview.style.display = "block";
-            };
-            reader.readAsDataURL(file);
-        }
+    if (imageUrl.value && imageUrl.value.trim() !== "") {
+        thumbnailPreview.src = imageUrl.value;
+        thumbnailCard.style.display = "block";
+        return;
     }
 
-    const titleInput = document.getElementById("title");
-    const tagsInput = document.getElementById("tags");
+    thumbnailCard.style.display = "none";
+}
 
-    const previewTitle = document.getElementById("previewTitle");
-    const previewTags = document.getElementById("previewTags");
+function renderVideo() {
+    const file = videoFile.files[0];
 
-    function renderMarkdown() {
-        preview.innerHTML = marked.parse(textarea.value || "");
+    if (file) {
+        videoPreview.src = URL.createObjectURL(file);
+        videoBox.style.display = "block";
+        return;
     }
 
-    function renderTitleAndTags() {
-        previewTitle.textContent = titleInput.value || "タイトル未入力";
-
-        const tags = tagsInput.value || "";
-        previewTags.textContent = tags ? "タグ： " + tags : "";
+    if (movieUrl.value && movieUrl.value.trim() !== "") {
+        videoPreview.src = movieUrl.value;
+        videoBox.style.display = "block";
+        return;
     }
 
-    function previewImage() {
-        const file = thumbnailFile.files[0];
+    videoBox.style.display = "none";
+}
 
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                thumbnailPreview.src = e.target.result;
-                thumbnailPreview.style.display = "block";
-            };
-            reader.readAsDataURL(file);
-        } else if (imageUrl.value && imageUrl.value.trim() !== "") {
-            thumbnailPreview.src = imageUrl.value;
-            thumbnailPreview.style.display = "block";
-        }
+function renderDownloadButton() {
+    const hasNewFile = documentFile.files.length > 0;
+    const hasOldFile =
+        fileUrl.value && fileUrl.value.trim() !== "";
+
+    if (hasNewFile || hasOldFile) {
+        downloadBox.style.display = "block";
+    } else {
+        downloadBox.style.display = "none";
     }
+}
 
-    function previewVideo() {
-        const file = videoFile.files[0];
+/* イベント */
+titleInput.addEventListener("input", renderTitle);
+tagsInput.addEventListener("input", renderTags);
+descriptionInput.addEventListener("input", renderDescription);
 
-        if (file) {
-            const url = URL.createObjectURL(file);
-            videoPreview.src = url;
-            videoPreview.style.display = "block";
-        } else if (movieUrl.value && movieUrl.value.trim() !== "") {
-            videoPreview.src = movieUrl.value;
-            videoPreview.style.display = "block";
-        }
-    }
-    // 初期表示用（既存データがある場合）
-    function loadExistingMedia() {
-        // サムネイル画像
-        if (imageUrl.value && imageUrl.value.trim() !== "") {
-            thumbnailPreview.src = imageUrl.value;
-            thumbnailPreview.style.display = "block";
-        }
+thumbnailFile.addEventListener("change", renderThumbnail);
+videoFile.addEventListener("change", renderVideo);
+documentFile.addEventListener("change", renderDownloadButton);
 
-        // 動画
-        if (movieUrl.value && movieUrl.value.trim() !== "") {
-            videoPreview.src = movieUrl.value;
-            videoPreview.style.display = "block";
-        }
-    }
-    
-    textarea.addEventListener("input", renderMarkdown);
-    titleInput.addEventListener("input", renderTitleAndTags);
-    tagsInput.addEventListener("input", renderTitleAndTags);
-    thumbnailFile.addEventListener("change", previewImage);
-    videoFile.addEventListener("change", previewVideo);
-
-    renderMarkdown();
-    renderTitleAndTags();
-    loadExistingMedia();
+/* 初回表示 */
+document.addEventListener("DOMContentLoaded", function () {
+    initializePreview();
+});
 </script>
 
 </body>
