@@ -80,6 +80,13 @@ body {
 </head>
 <body>
 
+<!-- 戻るボタン -->
+<button
+    class="btn btn-outline-secondary back-button"
+    onclick="history.back()">
+    ←
+</button>
+
 <div class="container mt-4">
 
     <h2 th:text="${mode == 'edit'} ? 'コンテンツ編集' : '新規作成'"></h2>

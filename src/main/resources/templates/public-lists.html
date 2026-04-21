@@ -9,18 +9,7 @@
 <body>
 
 <!-- ヘッダー -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-    <div class="container">
-        <a class="navbar-brand fw-bold" href="#">コンテンツプラットフォーム</a>
-        <div>
-            <a class="btn btn-outline-secondary" href="/public-contents">公開コンテンツ</a>
-            <a class="btn btn-primary" href="/public-lists">公開リスト</a>
-            <a class="btn btn-outline-secondary" href="/my-contents">マイコンテンツ</a>
-            <a class="btn btn-outline-secondary" href="/my-lists">マイリスト</a>
-            <a class="btn btn-outline-dark" href="/">ログアウト</a>
-        </div>
-    </div>
-</nav>
+<div th:replace="fragments/header :: header('publicLists')"></div>
 
 <div class="container mt-4">
 
