@@ -14,7 +14,7 @@
 <div class="container mt-4">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>公開リスト一覧</h2>
+        <h2>公開物一覧</h2>
     </div>
 
     <div class="row">
@@ -66,6 +66,77 @@
                         </a>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4" th:each="item : ${contents}">
+            <div class="card shadow-sm">
+
+                <!-- 画像（ある場合） -->
+                <img th:if="${item.imageUrl != null}"
+                     th:src="@{${item.imageUrl}}"
+                     class="card-img-top"/>
+
+                <!-- 画像（ない場合） -->
+                <img th:if="${item.imageUrl == null}"
+                     src="/img/no-image.png"
+                     class="card-img-top"/>
+
+                <div class="card-body">
+
+                    <!-- タイトル -->
+                    <h5 class="card-title"
+                        th:text="${item.contentsTitle}"></h5>
+
+                    <!-- 説明 -->
+                    <p class="card-text text-muted"
+                       th:text="${#strings.abbreviate(item.contentsText, 80)}">
+                    </p>
+
+                    <!-- 作成者 -->
+                    <div class="mb-2 text-muted small">
+                        作成者: <span th:text="${item.userId}"></span>
+                    </div>
+
+                    <!-- ボタン -->
+                    <div class="d-flex gap-2">
+
+                        <!-- 閲覧 -->
+                        <a th:href="@{'/contents/view/' + ${item.contentsId}}"
+                           class="btn btn-primary btn-sm">
+                            閲覧
+                        </a>
+
+                        <!-- 編集 -->
+                        <a th:if="${item.showAuth == '1'}"
+                           th:href="@{'/contents/edit/' + ${item.contentsId}}"
+                           class="btn btn-warning btn-sm">
+                            編集
+                        </a>
+                        
+                        <!-- コンテンツ非公開 -->
+                        <a th:if="${item.showAuth == '1' && item.showPublicAuth == '1'}"
+                           th:href="@{'/contents/release/' + ${item.contentsId} + '/0'}"
+                           class="btn btn-primary btn-sm">
+                            コンテンツ非公開
+                        </a>
+
+                        <!-- コンテンツインポート -->
+                        <a th:if="${item.showAuth == null || item.showAuth == '' || item.showAuth == 'null'}"
+                           th:href="@{'/contents/import/' + ${item.contentsId}}"
+                           class="btn btn-primary btn-sm">
+                            コンテンツインポート
+                        </a>
+                    </div>
+
+                    <!-- hidden -->
+                    <input type="hidden" th:value="${item.tag}" />
+                    <input type="hidden" th:value="${item.movieUrl}" />
+                    <input type="hidden" th:value="${item.fileUrl}" />
+                    <input type="hidden" th:value="${item.companyId}" />
+                    <input type="hidden" th:value="${item.showAuth}" />
+
+                </div>
+
             </div>
         </div>
     </div>

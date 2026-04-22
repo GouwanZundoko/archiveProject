@@ -11,18 +11,11 @@
             </a>
 
             <div>
-                <a th:class="${activeMenu == 'publicContents'} 
-                        ? 'btn btn-primary' 
-                        : 'btn btn-outline-secondary'"
-                   href="/public-contents">
-                    公開コンテンツ
-                </a>
-
                 <a th:class="${activeMenu == 'publicLists'} 
                         ? 'btn btn-primary' 
                         : 'btn btn-outline-secondary'"
                    href="/public-lists">
-                    公開リスト
+                    公開物一覧
                 </a>
 
                 <a th:class="${activeMenu == 'myContents'} 

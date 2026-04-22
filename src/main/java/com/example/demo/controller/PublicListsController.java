@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 
 import com.example.demo.sql.SelectMyContents;
 import com.example.demo.sql.SelectMyLists;
+import com.example.demo.sql.SelectPublicContents;
 import com.example.demo.sql.SelectPublicLists;
 import com.example.demo.dto.MyContentsDto;
 import com.example.demo.dto.MyContentsListDto;
@@ -33,6 +34,9 @@ public class PublicListsController {
     @Autowired
     private SelectMyContents selectMyContents;
 
+    @Autowired
+    SelectPublicContents selectPublicContents;
+
     // ★ これを追加（重要）
     public PublicListsController(PublicListRepository repository) {
         this.repository = repository;
@@ -51,6 +55,11 @@ public class PublicListsController {
         // ★モーダル用コンテンツ
         List<MyContentsDto> contentsList = selectMyContents.GetAllMyContents(UserId, CompanyId);
         model.addAttribute("contentsList", contentsList);
+
+        // 公開コンテンツ
+        List<MyContentsDto> contents = selectPublicContents.GetAllPublicContents(UserId, CompanyId, "1");
+
+        model.addAttribute("contents", contents);
 
         return "public-lists";
     }
