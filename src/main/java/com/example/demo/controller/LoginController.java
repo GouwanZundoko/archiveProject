@@ -38,7 +38,7 @@ public class LoginController {
             String UserId = String.valueOf(getResultList.get(0)[1]);
             session.setAttribute("CompanyId", CompanyId);
             session.setAttribute("UserId", UserId);
-            return "redirect:/public-contents";
+            return "redirect:/public-lists";
         } else {
             return "login";
         }

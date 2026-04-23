@@ -17,8 +17,55 @@
         <h2>公開物一覧</h2>
     </div>
 
+    <!-- 検索エリア（container内の h2 の下あたりに追加） -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+
+                <!-- タイトル -->
+                <div class="col-md-4">
+                    <label class="form-label">タイトル</label>
+                    <input type="text"
+                        id="searchTitle"
+                        class="form-control"
+                        placeholder="タイトル検索">
+                </div>
+
+                <!-- タグ -->
+                <div class="col-md-4">
+                    <label class="form-label">タグ</label>
+                    <input type="text"
+                        id="searchTag"
+                        class="form-control"
+                        placeholder="タグ検索">
+                </div>
+
+                <!-- 表示物 -->
+                <div class="col-md-3">
+                    <label class="form-label">表示物</label>
+                    <select id="searchType" class="form-select">
+                        <option value="">未入力</option>
+                        <option value="content">コンテンツ</option>
+                        <option value="list">リスト</option>
+                    </select>
+                </div>
+
+                <div class="col-md-1 d-flex align-items-end">
+                    <button class="btn btn-primary w-100"
+                            onclick="searchItems()">
+                        検索
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div class="row">
-        <div class="col-md-4 mb-3" th:each="list : ${lists}">
+        <!-- lists側 th:each を修正 -->
+        <div class="col-md-4 mb-3 list-card"
+            th:each="list : ${lists}"
+            th:attr="data-title=${list.listsTitle}">
             <div class="card">
                 <div class="card-body">
                     <h5 th:text="${list.listsTitle}"></h5>
@@ -68,7 +115,11 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-4" th:each="item : ${contents}">
+        <!-- contents側 th:each を修正 -->
+        <div class="col-md-4 mb-4 content-card"
+            th:each="item : ${contents}"
+            th:attr="data-title=${item.contentsTitle},
+                    data-tag=${item.tag}">
             <div class="card shadow-sm">
 
                 <!-- 画像（ある場合） -->
@@ -509,6 +560,82 @@ function openCreateListModal() {
 
 function closeCreateListModal() {
     document.getElementById("createListModal").style.display = "none";
+}
+
+function searchItems() {
+    const title = document.getElementById("searchTitle").value.trim().toLowerCase();
+    const tag = document.getElementById("searchTag").value.trim().toLowerCase();
+    const type = document.getElementById("searchType").value;
+
+    const listCards = document.querySelectorAll(".list-card");
+    const contentCards = document.querySelectorAll(".content-card");
+
+    // 初期化
+    listCards.forEach(card => {
+        card.style.display = "";
+    });
+
+    contentCards.forEach(card => {
+        card.style.display = "";
+    });
+
+    // =========================
+    // 表示物条件
+    // =========================
+    if (type === "content") {
+        listCards.forEach(card => {
+            card.style.display = "none";
+        });
+    }
+
+    if (type === "list") {
+        contentCards.forEach(card => {
+            card.style.display = "none";
+        });
+    }
+
+    // =========================
+    // タイトル検索
+    // 未入力 or 空白のみ → 処理しない
+    // =========================
+    if (title !== "") {
+        listCards.forEach(card => {
+            if (card.style.display === "none") return;
+
+            const cardTitle = (card.dataset.title || "").toLowerCase();
+
+            if (!cardTitle.includes(title)) {
+                card.style.display = "none";
+            }
+        });
+
+        contentCards.forEach(card => {
+            if (card.style.display === "none") return;
+
+            const cardTitle = (card.dataset.title || "").toLowerCase();
+
+            if (!cardTitle.includes(title)) {
+                card.style.display = "none";
+            }
+        });
+    }
+
+    // =========================
+    // タグ検索
+    // contentsのみ対象
+    // 未入力 or 空白のみ → 処理しない
+    // =========================
+    if (tag !== "") {
+        contentCards.forEach(card => {
+            if (card.style.display === "none") return;
+
+            const cardTag = (card.dataset.tag || "").toLowerCase();
+
+            if (!cardTag.includes(tag)) {
+                card.style.display = "none";
+            }
+        });
+    }
 }
 </script>
 
