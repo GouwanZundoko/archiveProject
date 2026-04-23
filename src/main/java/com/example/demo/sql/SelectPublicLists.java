@@ -29,6 +29,7 @@ public class SelectPublicLists {
         sb.append("   , c002.created_at ");
         sb.append("   , c002.updated_at ");
         sb.append("   , m002.show_auth ");
+        sb.append("   , c002.lists_tag ");
         sb.append(" FROM ");
         sb.append("     c002_lists_info c002 ");
         sb.append(" LEFT JOIN ");
@@ -62,6 +63,7 @@ public class SelectPublicLists {
             dto.setCreatedAt(String.valueOf(row[6]));
             dto.setUpdatedAt(String.valueOf(row[7]));
             dto.setShowAuth(String.valueOf(row[8]));
+            dto.setListstag(String.valueOf(row[9]));
 
             dtoList.add(dto);
         }

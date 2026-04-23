@@ -26,7 +26,14 @@
                 <div class="card-body">
                     <h5 th:text="${list.listsTitle}"></h5>
                     <p th:text="${list.listsText != null ? list.listsText : '内容なし'}"></p>
-
+                    <!-- タグ -->
+                    <div class="mb-4">
+                        <span
+                            class="badge bg-secondary me-1"
+                            th:each="tag : ${list.liststag}"
+                            th:text="${tag}">
+                        </span>
+                    </div>
                     <div th:if="${list.showAuth == '1'}">
                         <button class="btn btn-success w-100 mt-2"
                                 th:attr="data-list-id=${list.listsId}"
@@ -92,6 +99,12 @@
             <div class="mb-3">
                 <label class="form-label">説明</label>
                 <textarea name="listsText" class="form-control"></textarea>
+            </div>
+
+            <!-- タグ -->
+            <div class="mb-3">
+                <label class="form-label">タグ</label>
+                <textarea name="listsTag" class="form-control"></textarea>
             </div>
 
             <!-- ボタン -->

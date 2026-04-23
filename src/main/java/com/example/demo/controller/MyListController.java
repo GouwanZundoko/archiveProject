@@ -44,10 +44,11 @@ public class MyListController {
     }
 
     @PostMapping("/create-list")
-    public String handlePasswordReset(HttpSession session, String listsTitle, String listsText, Model model) {
+    public String handlePasswordReset(HttpSession session, String listsTitle, String listsText, String listsTag,
+            Model model) {
         String userId = (String) session.getAttribute("UserId");
         String companyId = (String) session.getAttribute("CompanyId");
-        Long count = selectMyLists.InsertAllPublicLists(userId, companyId, listsTitle, listsText);
+        Long count = selectMyLists.InsertAllPublicLists(userId, companyId, listsTitle, listsText, listsTag);
         selectMyLists.InsertMyLists(userId, companyId, count);
         return "redirect:/my-lists";
     }

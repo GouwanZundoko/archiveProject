@@ -31,6 +31,7 @@ public class SelectMyLists {
         sb.append("   , c002.created_at ");
         sb.append("   , c002.updated_at ");
         sb.append("   , m002.show_auth ");
+        sb.append("   , c002.lists_tag ");
         sb.append(" FROM ");
         sb.append("     m002_mylists_info m002 ");
         sb.append("     LEFT JOIN c002_lists_info c002 ");
@@ -59,6 +60,7 @@ public class SelectMyLists {
             dto.setCreatedAt(String.valueOf(row[6]));
             dto.setUpdatedAt(String.valueOf(row[7]));
             dto.setShowAuth(String.valueOf(row[8]));
+            dto.setListstag(String.valueOf(row[9]));
 
             dtoList.add(dto);
         }
@@ -79,6 +81,7 @@ public class SelectMyLists {
         sb.append("   , c002.created_at ");
         sb.append("   , c002.updated_at ");
         sb.append("   , m002.show_auth ");
+        sb.append("   , c002.lists_tag ");
         sb.append(" FROM ");
         sb.append("     m002_mylists_info m002 ");
         sb.append("     LEFT JOIN c002_lists_info c002 ");
@@ -109,6 +112,7 @@ public class SelectMyLists {
             dto.setCreatedAt(String.valueOf(row[6]));
             dto.setUpdatedAt(String.valueOf(row[7]));
             dto.setShowAuth(String.valueOf(row[8]));
+            dto.setListstag(String.valueOf(row[9]));
 
             dtoList.add(dto);
         }
@@ -167,7 +171,8 @@ public class SelectMyLists {
     }
 
     @Transactional
-    public Long InsertAllPublicLists(String UserId, String CompanyId, String listsTitle, String listsText) {
+    public Long InsertAllPublicLists(String UserId, String CompanyId, String listsTitle, String listsText,
+            String listsTag) {
 
         StringBuilder sb = new StringBuilder();
         sb.append(" INSERT INTO c002_lists_info ( ");
@@ -175,6 +180,7 @@ public class SelectMyLists {
         sb.append("     user_id, ");
         sb.append("     lists_title, ");
         sb.append("     lists_text, ");
+        sb.append("     lists_tag, ");
         sb.append("     show_auth, ");
         sb.append("     created_at, ");
         sb.append("     updated_at ");
@@ -183,6 +189,7 @@ public class SelectMyLists {
         sb.append("     :userId, ");
         sb.append("     :lists_title, ");
         sb.append("     :lists_text, ");
+        sb.append("     :lists_tag, ");
         sb.append("     '0', ");
         sb.append("     CURRENT_TIMESTAMP, ");
         sb.append("     CURRENT_TIMESTAMP ");
@@ -193,6 +200,7 @@ public class SelectMyLists {
         query.setParameter("companyId", CompanyId);
         query.setParameter("lists_title", listsTitle);
         query.setParameter("lists_text", listsText);
+        query.setParameter("lists_tag", listsTag);
 
         query.executeUpdate();
 

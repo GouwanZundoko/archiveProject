@@ -11,6 +11,7 @@ public class MyListsDto {
     private String createdAt;
     private String updatedAt;
     private String showPublicAuth;
+    private String liststag;
 
     // ===== getter / setter =====
 
@@ -84,5 +85,13 @@ public class MyListsDto {
 
     public void setShowPublicAuth(String showPublicAuth) {
         this.showPublicAuth = showPublicAuth;
+    }
+
+    public String getListstag() {
+        return liststag;
+    }
+
+    public void setListstag(String liststag) {
+        this.liststag = liststag;
     }
 }
