@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.servlet.http.HttpSession;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import com.example.demo.sql.SelectMyLists;
@@ -34,10 +35,30 @@ public class MyListController {
 
         // マイリスト
         List<MyListsDto> lists = selectMyLists.GetAllMyLists(userId, companyId);
+
+        for (MyListsDto dto : lists) {
+            if (dto.getListstag() != null && !dto.getListstag().isEmpty()) {
+                List<String> tags = Arrays.asList(dto.getListstag().split(","));
+                dto.setListsTagArray(tags);
+            } else {
+                dto.setListsTagArray(new ArrayList<>());
+            }
+        }
+
         model.addAttribute("lists", lists);
 
         // ★モーダル用コンテンツ
         List<MyContentsDto> contentsList = selectMyContents.GetAllMyContents(userId, companyId);
+
+        for (MyContentsDto dto : contentsList) {
+            if (dto.getTag() != null && !dto.getTag().isEmpty()) {
+                List<String> tags = Arrays.asList(dto.getTag().split(","));
+                dto.setContentsTagArray(tags);
+            } else {
+                dto.setContentsTagArray(new ArrayList<>());
+            }
+        }
+
         model.addAttribute("contentsList", contentsList);
 
         return "my-lists";

@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
+import java.util.List;
+
 public class MyListsDto {
 
     private String listsId;
@@ -12,6 +14,7 @@ public class MyListsDto {
     private String updatedAt;
     private String showPublicAuth;
     private String liststag;
+    private List<String> listsTagArray;
 
     // ===== getter / setter =====
 
@@ -93,5 +96,13 @@ public class MyListsDto {
 
     public void setListstag(String liststag) {
         this.liststag = liststag;
+    }
+
+    public List<String> getListsTagArray() {
+        return listsTagArray;
+    }
+
+    public void setListsTagArray(List<String> listsTagArray) {
+        this.listsTagArray = listsTagArray;
     }
 }

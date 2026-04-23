@@ -8,6 +8,8 @@ import com.example.demo.sql.SelectMyContents;
 import com.example.demo.sql.SelectMyOneContents;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,6 +33,15 @@ public class MyContentsController {
         String CompanyId = (String) session.getAttribute("CompanyId");
 
         List<MyContentsDto> lists = selectMyContents.GetAllMyContents(UserId, CompanyId);
+        for (MyContentsDto dto : lists) {
+            if (dto.getTag() != null && !dto.getTag().isEmpty()) {
+                List<String> tags = Arrays.asList(dto.getTag().split(","));
+                dto.setContentsTagArray(tags);
+            } else {
+                dto.setContentsTagArray(new ArrayList<>());
+            }
+        }
+
         model.addAttribute("lists", lists);
 
         return "my-contents";

@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
+import java.util.List;
+
 public class MyContentsDto {
 
     private String contentsId;
@@ -15,6 +17,7 @@ public class MyContentsDto {
     private String showPublicAuth;
     private String createDate;
     private String updateDate;
+    private List<String> contentsTagArray;
 
     // getter / setter
     public String getContentsId() {
@@ -119,5 +122,13 @@ public class MyContentsDto {
 
     public void setUpdateDate(String updateDate) {
         this.updateDate = updateDate;
+    }
+
+    public List<String> getContentsTagArray() {
+        return contentsTagArray;
+    }
+
+    public void setContentsTagArray(List<String> contentsTagArray) {
+        this.contentsTagArray = contentsTagArray;
     }
 }

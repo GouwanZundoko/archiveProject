@@ -17,6 +17,7 @@ import com.example.demo.dto.MyContentsListDto;
 import com.example.demo.dto.MyListsDto;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -50,14 +51,43 @@ public class PublicListsController {
         String CompanyId = (String) session.getAttribute("CompanyId");
 
         List<MyListsDto> lists = selectPublicLists.GetAllPublicLists(UserId, CompanyId, "1");
+
+        for (MyListsDto dto : lists) {
+            if (dto.getListstag() != null && !dto.getListstag().isEmpty()) {
+                List<String> tags = Arrays.asList(dto.getListstag().split(","));
+                dto.setListsTagArray(tags);
+            } else {
+                dto.setListsTagArray(new ArrayList<>());
+            }
+        }
+
         model.addAttribute("lists", lists);
 
         // ★モーダル用コンテンツ
         List<MyContentsDto> contentsList = selectMyContents.GetAllMyContents(UserId, CompanyId);
+
+        for (MyContentsDto dto : contentsList) {
+            if (dto.getTag() != null && !dto.getTag().isEmpty()) {
+                List<String> tags = Arrays.asList(dto.getTag().split(","));
+                dto.setContentsTagArray(tags);
+            } else {
+                dto.setContentsTagArray(new ArrayList<>());
+            }
+        }
+
         model.addAttribute("contentsList", contentsList);
 
         // 公開コンテンツ
         List<MyContentsDto> contents = selectPublicContents.GetAllPublicContents(UserId, CompanyId, "1");
+
+        for (MyContentsDto dto : contents) {
+            if (dto.getTag() != null && !dto.getTag().isEmpty()) {
+                List<String> tags = Arrays.asList(dto.getTag().split(","));
+                dto.setContentsTagArray(tags);
+            } else {
+                dto.setContentsTagArray(new ArrayList<>());
+            }
+        }
 
         model.addAttribute("contents", contents);
 
