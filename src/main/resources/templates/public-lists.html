@@ -278,6 +278,15 @@
 
                         <div style="position:absolute; top:5px; left:5px; font-weight:bold; z-index:1;"
                              th:text="${item.contentsTitle}"></div>
+                             
+                        <!-- タグ -->
+                        <div class="mb-4">
+                            <span
+                                class="badge bg-secondary me-1"
+                                th:each="tag : ${item.contentsTagArray}"
+                                th:text="${tag}">
+                            </span>
+                        </div>
 
                         <img class="card-img-top"
                              th:src="@{${item.imageUrl}}"

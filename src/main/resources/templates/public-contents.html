@@ -42,6 +42,15 @@
                     <div class="mb-2 text-muted small">
                         作成者: <span th:text="${item.userId}"></span>
                     </div>
+                    
+                    <!-- タグ -->
+                    <div class="mb-4">
+                        <span
+                            class="badge bg-secondary me-1"
+                            th:each="tag : ${item.contentsTagArray}"
+                            th:text="${tag}">
+                        </span>
+                    </div>
 
                     <!-- ボタン -->
                     <div class="d-flex gap-2">
