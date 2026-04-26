@@ -142,14 +142,6 @@
                                   data-title=${item.contentsTitle},
                                   data-text=${item.contentsText},
                                   data-image=${item.imageUrl}">
-                    <!-- タグ -->
-                    <div class="mb-4">
-                        <span
-                            class="badge bg-secondary me-1"
-                            th:each="tag : ${item.contentsTagArray}"
-                            th:text="${tag}">
-                        </span>
-                    </div>
 
                         <div style="position:absolute; top:5px; left:5px; font-weight:bold; z-index:1;"
                              th:text="${item.contentsTitle}"></div>
@@ -158,6 +150,15 @@
                              th:src="@{${item.imageUrl}}"
                              style="height:120px; object-fit:cover;"/>
 
+                        <!-- タグ -->
+                        <div class="mb-4">
+                            <span
+                                class="badge bg-secondary me-1"
+                                th:each="tag : ${item.contentsTagArray}"
+                                th:text="${tag}">
+                            </span>
+                        </div>
+                        
                         <div class="card-body pb-5">
                             <p th:text="${item.contentsText}"></p>
                         </div>
