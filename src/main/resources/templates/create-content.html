@@ -21,11 +21,12 @@ body {
     padding: 24px;
 }
 
-/* mycontent-detail と同じ */
+/* サムネプレビュー */
 .thumbnail {
     width: 100%;
-    aspect-ratio: 16 / 4.5;
+    height: 195px;
     object-fit: cover;
+    object-position: left center;
     border-radius: 8px;
 }
 
@@ -76,13 +77,55 @@ body {
     min-width: 180px;
     margin-left: 0;
 }
+
+/* 切り抜き */
+.crop-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 700px;
+    min-height: auto;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
+    margin-top: 12px;
+}
+
+#cropImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    max-width: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+#cropBox {
+    position: absolute;
+    width: 694px;
+    height: 195px;
+    border: 2px solid #0d6efd;
+    background: rgba(13,110,253,0.08);
+    cursor: move;
+    box-sizing: border-box;
+}
+
+.resize-handle {
+    position: absolute;
+    right: -8px;
+    bottom: -8px;
+    width: 18px;
+    height: 18px;
+    background: #0d6efd;
+    border-radius: 50%;
+    cursor: nwse-resize;
+}
 </style>
 </head>
 <body>
 
-<!-- 戻るボタン -->
 <button
-    class="btn btn-outline-secondary back-button"
+    class="btn btn-outline-secondary m-3"
     onclick="history.back()">
     ←
 </button>
@@ -135,16 +178,37 @@ body {
                 <div class="mb-3">
                     <label class="form-label">サムネイル</label>
 
+                    <!-- ★ file input は upload専用 -->
                     <input type="file"
-                           id="thumbnailFile"
-                           name="thumbnailFile"
-                           class="form-control"
-                           accept="image/*">
+                        id="thumbnailUpload"
+                        class="form-control"
+                        accept="image/*">
+
+                    <!-- ★ 保存用（Base64） -->
+                    <input type="hidden"
+                        id="thumbnailFile"
+                        name="thumbnailFile">
 
                     <input type="hidden"
-                           id="imageUrl"
-                           name="imageUrl"
-                           th:value="${content.imageUrl}">
+                        id="imageUrl"
+                        name="imageUrl"
+                        th:value="${content.imageUrl}">
+
+                    <!-- 切り抜きエリア -->
+                    <div id="cropArea" style="display:none;">
+                        <div class="crop-wrapper">
+                            <img id="cropImage" alt="crop target">
+
+                            <div id="cropBox">
+                                <div class="resize-handle"></div>
+                            </div>
+                        </div>
+
+                        <canvas id="cropCanvas"
+                                width="694"
+                                height="195"
+                                style="display:none;"></canvas>
+                    </div>
                 </div>
 
                 <!-- 動画 -->
@@ -196,7 +260,9 @@ body {
                 <div class="preview-box">
 
                     <!-- サムネ -->
-                    <div class="card mb-4" id="thumbnailCard" style="display:none;">
+                    <div class="card mb-4"
+                         id="thumbnailCard"
+                         style="display:none;">
                         <img id="thumbnailPreview"
                              class="thumbnail"
                              alt="thumbnail">
@@ -222,26 +288,22 @@ body {
                     <!-- 説明 -->
                     <div class="mb-4">
                         <div id="previewDescription"
-                             class="description-box">
-                        </div>
+                             class="description-box"></div>
                     </div>
 
                     <!-- 動画 -->
                     <div id="videoBox"
                          class="card mb-4 movie-box"
                          style="display:none;">
-
                         <video id="videoPreview"
                                controls
-                               class="w-100">
-                        </video>
+                               class="w-100"></video>
                     </div>
 
                     <!-- ダウンロード -->
                     <div id="downloadBox"
                          class="download-box mb-4"
                          style="display:none;">
-
                         <button
                             type="button"
                             class="btn btn-primary w-100">
@@ -261,10 +323,23 @@ const titleInput = document.getElementById("title");
 const tagsInput = document.getElementById("tags");
 const descriptionInput = document.getElementById("description");
 
+/*
+★ 修正
+thumbnailUpload = 選択用
+thumbnailFile   = 保存用 hidden
+*/
+const thumbnailUpload = document.getElementById("thumbnailUpload");
 const thumbnailFile = document.getElementById("thumbnailFile");
+
 const imageUrl = document.getElementById("imageUrl");
 const thumbnailPreview = document.getElementById("thumbnailPreview");
 const thumbnailCard = document.getElementById("thumbnailCard");
+
+const cropArea = document.getElementById("cropArea");
+const cropImage = document.getElementById("cropImage");
+const cropBox = document.getElementById("cropBox");
+const cropCanvas = document.getElementById("cropCanvas");
+const resizeHandle = document.querySelector(".resize-handle");
 
 const videoFile = document.getElementById("videoFile");
 const movieUrl = document.getElementById("movieUrl");
@@ -279,7 +354,21 @@ const previewTitle = document.getElementById("previewTitle");
 const previewTags = document.getElementById("previewTags");
 const previewDescription = document.getElementById("previewDescription");
 
-/* 初期表示も含めて全部ここで制御 */
+let scale = 1;
+
+let crop = {
+    x: 0,
+    y: 100,
+    width: 694,
+    height: 195
+};
+
+let isDraggingCrop = false;
+let isResizing = false;
+let startX = 0;
+let startY = 0;
+
+/* 初期表示 */
 function initializePreview() {
     renderTitle();
     renderTags();
@@ -314,14 +403,24 @@ function renderDescription() {
 }
 
 function renderThumbnail() {
-    const file = thumbnailFile.files[0];
+    /*
+    ★ 修正
+    thumbnailUpload を使用
+    */
+    const file = thumbnailUpload.files[0];
 
     if (file) {
         const reader = new FileReader();
+
         reader.onload = function(e) {
-            thumbnailPreview.src = e.target.result;
-            thumbnailCard.style.display = "block";
+            cropImage.onload = function () {
+                setupCrop();
+            };
+
+            cropImage.src = e.target.result;
+            cropArea.style.display = "block";
         };
+
         reader.readAsDataURL(file);
         return;
     }
@@ -333,6 +432,92 @@ function renderThumbnail() {
     }
 
     thumbnailCard.style.display = "none";
+}
+
+function setupCrop() {
+    const wrapper = document.querySelector(".crop-wrapper");
+
+    const wrapperWidth = wrapper.clientWidth;
+    const img = cropImage;
+
+    const scaleX = wrapperWidth / img.naturalWidth;
+    const minScaleForCrop = 694 / img.naturalWidth;
+
+    /*
+    cropBox幅(694px)より画像幅が小さくならないようにする
+    */
+    scale = Math.max(scaleX, minScaleForCrop);
+
+    const displayWidth = img.naturalWidth * scale;
+    const displayHeight = img.naturalHeight * scale;
+
+    wrapper.style.height = displayHeight + "px";
+    img.style.width = displayWidth + "px";
+    img.style.height = displayHeight + "px";
+    img.style.left = "0px";
+    img.style.top = "0px";
+
+    crop.x = 0;
+    crop.y = 100;
+    crop.width = 694;
+    crop.height = 195;
+
+    updateCropBox();
+}
+
+function updateCropBox() {
+    const maxX = cropImage.offsetWidth - crop.width;
+    const maxY = cropImage.offsetHeight - crop.height;
+
+    crop.x = Math.max(0, Math.min(crop.x, maxX));
+    crop.y = Math.max(0, Math.min(crop.y, maxY));
+
+    cropBox.style.left = crop.x + "px";
+    cropBox.style.top = crop.y + "px";
+    cropBox.style.width = crop.width + "px";
+    cropBox.style.height = crop.height + "px";
+
+    updatePreviewThumbnail();
+}
+
+function updatePreviewThumbnail() {
+    const ctx = cropCanvas.getContext("2d");
+
+    const sx = crop.x / scale;
+    const sy = crop.y / scale;
+    const sw = crop.width / scale;
+    const sh = crop.height / scale;
+
+    ctx.clearRect(0, 0, 694, 195);
+
+    ctx.drawImage(
+        cropImage,
+        sx,
+        sy,
+        sw,
+        sh,
+        0,
+        0,
+        694,
+        195
+    );
+
+    /*
+    ★ Base64取得
+    */
+    const croppedBase64 =
+        cropCanvas.toDataURL("image/png");
+
+    /*
+    ★ preview表示
+    */
+    thumbnailPreview.src = croppedBase64;
+    thumbnailCard.style.display = "block";
+
+    /*
+    ★ hiddenへ保存
+    */
+    thumbnailFile.value = croppedBase64;
 }
 
 function renderVideo() {
@@ -358,23 +543,69 @@ function renderDownloadButton() {
     const hasOldFile =
         fileUrl.value && fileUrl.value.trim() !== "";
 
-    if (hasNewFile || hasOldFile) {
-        downloadBox.style.display = "block";
-    } else {
-        downloadBox.style.display = "none";
-    }
+    downloadBox.style.display =
+        (hasNewFile || hasOldFile) ? "block" : "none";
 }
+
+/* crop drag */
+cropBox.addEventListener("mousedown", function(e) {
+    if (e.target === resizeHandle) return;
+
+    isDraggingCrop = true;
+    startX = e.clientX - crop.x;
+    startY = e.clientY - crop.y;
+});
+
+resizeHandle.addEventListener("mousedown", function(e) {
+    e.stopPropagation();
+    isResizing = true;
+    startX = e.clientX;
+});
+
+document.addEventListener("mousemove", function(e) {
+    if (isDraggingCrop) {
+        crop.x = e.clientX - startX;
+        crop.y = e.clientY - startY;
+        updateCropBox();
+    }
+
+    if (isResizing) {
+        const dx = e.clientX - startX;
+
+        let newWidth = crop.width + dx;
+        newWidth = Math.max(300, newWidth);
+
+        let newHeight = (newWidth / 694) * 195;
+
+        crop.width = newWidth;
+        crop.height = newHeight;
+
+        startX = e.clientX;
+
+        updateCropBox();
+    }
+});
+
+document.addEventListener("mouseup", function() {
+    isDraggingCrop = false;
+    isResizing = false;
+});
 
 /* イベント */
 titleInput.addEventListener("input", renderTitle);
 tagsInput.addEventListener("input", renderTags);
 descriptionInput.addEventListener("input", renderDescription);
 
-thumbnailFile.addEventListener("change", renderThumbnail);
+/*
+★ 修正
+thumbnailUpload を監視
+*/
+thumbnailUpload.addEventListener("change", renderThumbnail);
+
 videoFile.addEventListener("change", renderVideo);
 documentFile.addEventListener("change", renderDownloadButton);
 
-/* 初回表示 */
+/* 初回 */
 document.addEventListener("DOMContentLoaded", function () {
     initializePreview();
 });

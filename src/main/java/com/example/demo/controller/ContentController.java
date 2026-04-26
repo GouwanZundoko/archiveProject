@@ -56,6 +56,7 @@ public class ContentController {
         return "create-content";
     }
 
+    // saveContent の引数を変更
     @PostMapping("/save")
     public String saveContent(
             HttpSession session,
@@ -63,7 +64,10 @@ public class ContentController {
             @RequestParam String title,
             @RequestParam String description,
             @RequestParam(required = false) String tags,
-            @RequestParam(required = false) MultipartFile thumbnailFile,
+
+            // ★ thumbnailFile → Base64文字列で受け取る
+            @RequestParam(required = false) String thumbnailFile,
+
             @RequestParam(required = false) MultipartFile videoFile,
             @RequestParam(required = false) MultipartFile documentFile,
             @RequestParam String imageUrl,
@@ -73,17 +77,15 @@ public class ContentController {
         String userId = (String) session.getAttribute("UserId");
         String companyId = (String) session.getAttribute("CompanyId");
 
-        // ===== 保存先ベース =====
         String baseDir = "C:/app/uploads/";
 
-        // ===== ファイル保存してパス取得 =====
-        String thumbnailPath = "";
-        if (thumbnailFile == null || thumbnailFile.isEmpty()) {
-            thumbnailPath = imageUrl;
-        } else {
-            thumbnailPath = saveFile(thumbnailFile, baseDir + "thumbnail/", imageUrl);
-        }
+        // ===== サムネ保存（新関数）=====
+        String thumbnailPath = saveThumbnailFromImg(
+                thumbnailFile,
+                baseDir + "thumbnail/",
+                imageUrl);
 
+        // ===== 動画 =====
         String videoPath = "";
         if (videoFile == null || videoFile.isEmpty()) {
             videoPath = movieUrl;
@@ -91,6 +93,7 @@ public class ContentController {
             videoPath = saveFile(videoFile, baseDir + "video/", movieUrl);
         }
 
+        // ===== ファイル =====
         String documentPath = "";
         if (documentFile == null || documentFile.isEmpty()) {
             documentPath = fileUrl;
@@ -99,7 +102,6 @@ public class ContentController {
         }
 
         if (!"none".equals(contentsId)) {
-            // ===== DB登録（パスを渡す）=====
             insertPublicContents.UpdateContents(
                     contentsId,
                     userId,
@@ -111,7 +113,6 @@ public class ContentController {
                     videoPath,
                     documentPath);
         } else {
-            // ===== DB登録（パスを渡す）=====
             Long contentsLong = insertPublicContents.InsertContents(
                     userId,
                     companyId,
@@ -161,6 +162,51 @@ public class ContentController {
 
         } catch (Exception e) {
             throw new RuntimeException("ファイル保存失敗", e);
+        }
+    }
+
+    // ★ 新規追加：imgタグ(thumbnailPreview)のbase64を保存する専用関数
+    private String saveThumbnailFromImg(
+            String base64Image,
+            String dir,
+            String oldFileUrl) {
+
+        if (base64Image == null || base64Image.isBlank()) {
+            return oldFileUrl != null ? oldFileUrl : "";
+        }
+
+        try {
+            Path dirPath = Paths.get(dir);
+            Files.createDirectories(dirPath);
+
+            // 旧ファイル削除
+            if (oldFileUrl != null && !oldFileUrl.isBlank()) {
+                String oldFileName = Paths.get(oldFileUrl)
+                        .getFileName()
+                        .toString();
+
+                Path oldFilePath = dirPath.resolve(oldFileName);
+                Files.deleteIfExists(oldFilePath);
+            }
+
+            // data:image/png;base64,xxxxx
+            String[] parts = base64Image.split(",");
+            if (parts.length < 2) {
+                return oldFileUrl != null ? oldFileUrl : "";
+            }
+
+            byte[] imageBytes = java.util.Base64.getDecoder().decode(parts[1]);
+
+            String fileName = UUID.randomUUID() + "_thumbnail.png";
+
+            Path filePath = dirPath.resolve(fileName);
+
+            Files.write(filePath, imageBytes);
+
+            return "/files/thumbnail/" + fileName;
+
+        } catch (Exception e) {
+            throw new RuntimeException("サムネ保存失敗", e);
         }
     }
 }
