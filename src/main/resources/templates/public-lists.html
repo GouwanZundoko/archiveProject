@@ -1,9 +1,138 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>マイリスト</title>
+
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+    <style>
+        /* =========================
+           Modal Common
+        ========================= */
+        .custom-modal {
+            display: none;
+            z-index: 9999;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-box {
+            background: #fff;
+        }
+
+        .modal-close-area {
+            text-align: right;
+        }
+
+        .modal-center {
+            text-align: center;
+        }
+
+        /* =========================
+           Create List Modal
+        ========================= */
+        .create-list-modal-box {
+            width: 400px;
+            margin: 10% auto;
+            padding: 20px;
+        }
+
+        /* =========================
+           Content Add / View Modal
+        ========================= */
+        .large-modal-box {
+            width: 85%;
+            height: 90%;
+            margin: 3% auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .content-list-section {
+            flex: 1;
+            overflow-y: auto;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .selected-content-section {
+            height: 220px;
+            overflow-y: auto;
+            padding-top: 10px;
+        }
+
+        .modal-footer-area {
+            text-align: center;
+            margin-top: 10px;
+            flex-shrink: 0;
+        }
+
+        .view-area {
+            overflow-y: auto;
+        }
+
+        /* =========================
+           Card Overlay
+        ========================= */
+        .card-title-overlay {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-weight: bold;
+            z-index: 1;
+            background-color: white;
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+
+        .card-image-fixed {
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .add-btn-position,
+        .delete-btn-position {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+        }
+
+        /* =========================
+           Selected Order Badge
+        ========================= */
+        .order-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 24px;
+            height: 24px;
+            background: #0d6efd;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .selected-card-title {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-weight: bold;
+            z-index: 1;
+        }
+    </style>
 </head>
 
 <body>
@@ -17,30 +146,27 @@
         <h2>公開物一覧</h2>
     </div>
 
-    <!-- 検索エリア（container内の h2 の下あたりに追加） -->
+    <!-- 検索エリア -->
     <div class="card mb-4">
         <div class="card-body">
             <div class="row g-3">
 
-                <!-- タイトル -->
                 <div class="col-md-4">
                     <label class="form-label">タイトル</label>
                     <input type="text"
-                        id="searchTitle"
-                        class="form-control"
-                        placeholder="タイトル検索">
+                           id="searchTitle"
+                           class="form-control"
+                           placeholder="タイトル検索">
                 </div>
 
-                <!-- タグ -->
                 <div class="col-md-4">
                     <label class="form-label">タグ</label>
                     <input type="text"
-                        id="searchTag"
-                        class="form-control"
-                        placeholder="タグ検索">
+                           id="searchTag"
+                           class="form-control"
+                           placeholder="タグ検索">
                 </div>
 
-                <!-- 表示物 -->
                 <div class="col-md-3">
                     <label class="form-label">表示物</label>
                     <select id="searchType" class="form-select">
@@ -60,7 +186,6 @@
             </div>
         </div>
     </div>
-
     <div class="row">
         <!-- lists側 th:each を修正 -->
         <div class="col-md-4 mb-3 list-card"
@@ -212,38 +337,33 @@
 </div>
 
 <!-- ================= リスト作成モーダル ================= -->
-<div id="createListModal"
-     style="display:none; z-index:9999; position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.5);">
+<div id="createListModal" class="custom-modal">
 
-    <div style="background:#fff; width:400px; margin:10% auto; padding:20px;">
+    <div class="modal-box create-list-modal-box">
 
-        <!-- 閉じる -->
-        <div style="text-align:right;">
+        <div class="modal-close-area">
             <button onclick="closeCreateListModal()">×</button>
         </div>
 
         <h4>リスト作成</h4>
 
         <form action="/public-lists/create-list" method="post">
-            <input type="hidden" id = "hiddenListId" name="hiddenListId">
+            <input type="hidden" id="hiddenListId" name="hiddenListId">
 
-            <!-- タイトル -->
             <div class="mb-3">
                 <label class="form-label">タイトル</label>
                 <input type="text" name="listsTitle" class="form-control" required>
             </div>
 
-            <!-- 説明 -->
             <div class="mb-3">
                 <label class="form-label">説明</label>
                 <textarea name="listsText" class="form-control"></textarea>
             </div>
 
-            <!-- ボタン -->
-            <div class="text-center">
+            <div class="modal-center">
                 <button type="submit" class="btn btn-success">作成</button>
-                <button type="button" class="btn btn-secondary" onclick="closeCreateListModal()">キャンセル</button>
+                <button type="button" class="btn btn-secondary"
+                        onclick="closeCreateListModal()">キャンセル</button>
             </div>
 
         </form>
@@ -252,21 +372,18 @@
 </div>
 
 <!-- ================= コンテンツ追加モーダル ================= -->
-<div id="modal"
-     style="display:none; z-index:9999; position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.5);">
+<div id="modal" class="custom-modal">
 
-    <div style="background:#fff; width:85%; height:90%; margin:3% auto; padding:15px;
-                display:flex; flex-direction:column; overflow:hidden;">
+    <div class="modal-box large-modal-box">
 
-        <div style="text-align:right;">
+        <div class="modal-close-area">
             <button onclick="closeModal()">×</button>
         </div>
 
-        <!-- 上段：コンテンツ一覧 -->
-        <div style="flex:1; overflow-y:auto; border-bottom:2px solid #ccc; padding-bottom:10px;">
+        <div class="content-list-section">
             <h5 class="mb-3">コンテンツ一覧</h5>
             <div class="row" id="contentListArea">
+
                 <div class="col-md-3 mb-3" th:each="item : ${contentsList}">
                     <div class="card position-relative"
                          th:attr="data-contents-id=${item.contentsId},
@@ -276,19 +393,16 @@
                                   data-text=${item.contentsText},
                                   data-image=${item.imageUrl}">
 
-                        <div style="position:absolute; top:5px; left:5px; font-weight:bold; z-index:1;background-color:white; padding-left:2px; padding-right:2px;"
+                        <div class="card-title-overlay"
                              th:text="${item.contentsTitle}"></div>
 
-                        <img class="card-img-top"
-                             th:src="@{${item.imageUrl}}"
-                             style="height:120px; object-fit:cover;"/>
-                             
-                        <!-- タグ -->
+                        <img class="card-img-top card-image-fixed"
+                             th:src="@{${item.imageUrl}}"/>
+
                         <div class="mb-4">
-                            <span
-                                class="badge bg-secondary me-1"
-                                th:each="tag : ${item.contentsTagArray}"
-                                th:text="${tag}">
+                            <span class="badge bg-secondary me-1"
+                                  th:each="tag : ${item.contentsTagArray}"
+                                  th:text="${tag}">
                             </span>
                         </div>
 
@@ -296,27 +410,27 @@
                             <p th:text="${item.contentsText}"></p>
                         </div>
 
-                        <button class="btn btn-primary btn-sm add-btn"
-                                style="position:absolute; bottom:5px; right:5px;"
+                        <button class="btn btn-primary btn-sm add-btn add-btn-position"
                                 onclick="addItem(this)">
                             追加
                         </button>
 
                     </div>
                 </div>
+
             </div>
         </div>
 
-        <!-- 下段：選択済みコンテンツ -->
-        <div style="height:220px; overflow-y:auto; padding-top:10px;">
+        <div class="selected-content-section">
             <h5 class="mb-2">
                 選択済みコンテンツ
                 <span id="selectedCount" class="badge bg-secondary">0</span>
             </h5>
+
             <div class="row" id="selectedArea"></div>
         </div>
 
-        <div style="text-align:center; margin-top:10px; flex-shrink:0;">
+        <div class="modal-footer-area">
             <button class="btn btn-success" onclick="submitSelected()">完了</button>
             <button class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
         </div>
@@ -325,25 +439,20 @@
 </div>
 
 <!-- ================= コンテンツ閲覧モーダル ================= -->
-<div id="viewModal"
-     style="display:none; z-index:9999; position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.5);">
+<div id="viewModal" class="custom-modal">
 
-    <div style="background:#fff; width:85%; height:90%; margin:3% auto; padding:15px;
-                display:flex; flex-direction:column; overflow:hidden;">
+    <div class="modal-box large-modal-box">
 
-        <div style="text-align:right;">
+        <div class="modal-close-area">
             <button onclick="closeViewModal()">×</button>
         </div>
 
         <h5>リスト内コンテンツ</h5>
 
-        <div id="viewArea" class="row" style="overflow-y:auto;"></div>
+        <div id="viewArea" class="row view-area"></div>
 
     </div>
 </div>
-
-<!-- ================= JS ================= -->
 <script>
 let currentListId = null;
 const selectedIds = new Set();
@@ -354,12 +463,10 @@ function openViewModal(btn) {
     fetch(`/public-lists/selected-contents/${currentListId}`)
         .then(res => res.json())
         .then(data => {
-
             const viewArea = document.getElementById("viewArea");
             viewArea.innerHTML = "";
 
             data.forEach(item => {
-
                 const originalCard = document.querySelector(
                     `#contentListArea .card[data-contents-id="${item.contentsId}"]`
                 );
@@ -368,7 +475,6 @@ function openViewModal(btn) {
 
                 const clone = originalCard.cloneNode(true);
 
-                // ボタン置き換え
                 let btn = clone.querySelector(".add-btn");
                 if (btn) {
                     btn.textContent = "閲覧";
@@ -379,7 +485,6 @@ function openViewModal(btn) {
 
                 viewArea.appendChild(clone);
             });
-
         });
 
     document.getElementById("viewModal").style.display = "block";
@@ -404,16 +509,12 @@ function openModal(btn) {
     selectedIds.clear();
     document.getElementById("selectedArea").innerHTML = "";
 
-    // ★既存選択取得
     fetch(`/public-lists/selected-contents/${currentListId}`)
         .then(res => res.json())
         .then(data => {
-
             data.forEach(item => {
-
                 const contentsId = item.contentsId;
 
-                // 元カード取得
                 const originalCard = document.querySelector(
                     `#contentListArea .card[data-contents-id="${contentsId}"]`
                 );
@@ -422,10 +523,8 @@ function openModal(btn) {
 
                 const addBtn = originalCard.querySelector(".add-btn");
 
-                // ★既存ロジック流用
                 addItem(addBtn);
             });
-
         });
 
     document.getElementById("modal").style.display = "block";
@@ -442,56 +541,46 @@ function addItem(btn) {
     if (selectedIds.has(contentsId)) return;
     selectedIds.add(contentsId);
 
-    // 元カードの追加ボタンを「追加済み」に
     btn.textContent = "追加済み";
     btn.disabled = true;
 
-    // ---- 選択エリア用カードを新規作成 ----
     const newCard = document.createElement("div");
     newCard.className = "card position-relative";
 
-    // 順番バッジ（右上）
     const badge = document.createElement("div");
     badge.className = "order-badge";
-    badge.style.cssText =
-        "position:absolute; top:-10px; right:-10px; width:24px; height:24px;" +
-        "background:#0d6efd; color:#fff; border-radius:50%;" +
-        "display:flex; align-items:center; justify-content:center;" +
-        "font-size:12px; font-weight:bold; z-index:2;";
     badge.textContent = selectedIds.size;
     newCard.appendChild(badge);
 
-    // タイトル
     const titleDiv = document.createElement("div");
-    titleDiv.style.cssText = "position:absolute; top:5px; left:5px; font-weight:bold; z-index:1;";
+    titleDiv.className = "selected-card-title";
     titleDiv.textContent = card.getAttribute("data-title") || "";
     newCard.appendChild(titleDiv);
 
-    // 画像
     const img = card.querySelector("img");
     if (img) {
         const cloneImg = img.cloneNode(true);
         newCard.appendChild(cloneImg);
     }
 
-    // テキスト
     const bodyDiv = document.createElement("div");
     bodyDiv.className = "card-body pb-5";
+
     const p = document.createElement("p");
     p.textContent = card.getAttribute("data-text") || "";
+
     bodyDiv.appendChild(p);
     newCard.appendChild(bodyDiv);
 
-    // 削除ボタン
     const delBtn = document.createElement("button");
-    delBtn.className = "btn btn-danger btn-sm";
-    delBtn.style.cssText = "position:absolute; bottom:5px; right:5px;";
+    delBtn.className = "btn btn-danger btn-sm delete-btn-position";
     delBtn.textContent = "削除";
     delBtn.dataset.contentsId = contentsId;
-    // ★ addEventListener で登録（onclickではなく）
+
     delBtn.addEventListener("click", function () {
         removeItem(contentsId);
     });
+
     newCard.appendChild(delBtn);
 
     const wrapper = document.createElement("div");
@@ -500,6 +589,7 @@ function addItem(btn) {
     wrapper.appendChild(newCard);
 
     document.getElementById("selectedArea").appendChild(wrapper);
+
     updateCount();
 }
 
@@ -507,10 +597,10 @@ function removeItem(contentsId) {
     const wrapper = document.getElementById("selected-" + contentsId);
     if (wrapper) wrapper.remove();
 
-    // 元カードの追加ボタンを戻す
     const originalCard = document.querySelector(
         `#contentListArea .card[data-contents-id="${contentsId}"]`
     );
+
     if (originalCard) {
         const originalBtn = originalCard.querySelector(".add-btn");
         originalBtn.textContent = "追加";
@@ -518,8 +608,9 @@ function removeItem(contentsId) {
     }
 
     selectedIds.delete(contentsId);
+
     updateCount();
-    renumberBadges(); // ★ 番号を振り直す
+    renumberBadges();
 }
 
 function updateCount() {
@@ -527,7 +618,6 @@ function updateCount() {
 }
 
 function submitSelected() {
-
     const wrappers = document.querySelectorAll("#selectedArea .col-md-3");
 
     if (wrappers.length === 0) {
@@ -537,7 +627,6 @@ function submitSelected() {
 
     const listId = document.getElementById("hiddenListId").value;
 
-    // ★ [order, contentsId] の配列
     let dataList = [];
 
     wrappers.forEach(wrapper => {
@@ -551,13 +640,10 @@ function submitSelected() {
         });
     });
 
-    // ★ order順にソート（安全対策）
     dataList.sort((a, b) => a.order - b.order);
 
-    // ★ contentsIdだけの配列に変換
     const contentsIds = dataList.map(d => d.contentsId);
 
-    // ★送信
     fetch("/public-lists/add-contents", {
         method: "POST",
         headers: {
@@ -572,12 +658,14 @@ function submitSelected() {
     });
 }
 
-// 選択済みカードのバッジ番号を 1,2,3... に振り直す
 function renumberBadges() {
     const wrappers = document.querySelectorAll("#selectedArea .col-md-3");
+
     wrappers.forEach((wrapper, index) => {
         const badge = wrapper.querySelector(".order-badge");
-        if (badge) badge.textContent = index + 1;
+        if (badge) {
+            badge.textContent = index + 1;
+        }
     });
 }
 
@@ -590,14 +678,19 @@ function closeCreateListModal() {
 }
 
 function searchItems() {
-    const title = document.getElementById("searchTitle").value.trim().toLowerCase();
-    const tag = document.getElementById("searchTag").value.trim().toLowerCase();
+    const title = document.getElementById("searchTitle").value
+        .trim()
+        .toLowerCase();
+
+    const tag = document.getElementById("searchTag").value
+        .trim()
+        .toLowerCase();
+
     const type = document.getElementById("searchType").value;
 
     const listCards = document.querySelectorAll(".list-card");
     const contentCards = document.querySelectorAll(".content-card");
 
-    // 初期化
     listCards.forEach(card => {
         card.style.display = "";
     });
@@ -606,9 +699,6 @@ function searchItems() {
         card.style.display = "";
     });
 
-    // =========================
-    // 表示物条件
-    // =========================
     if (type === "content") {
         listCards.forEach(card => {
             card.style.display = "none";
@@ -621,10 +711,6 @@ function searchItems() {
         });
     }
 
-    // =========================
-    // タイトル検索
-    // 未入力 or 空白のみ → 処理しない
-    // =========================
     if (title !== "") {
         listCards.forEach(card => {
             if (card.style.display === "none") return;
@@ -647,11 +733,6 @@ function searchItems() {
         });
     }
 
-    // =========================
-    // タグ検索
-    // contentsのみ対象
-    // 未入力 or 空白のみ → 処理しない
-    // =========================
     if (tag !== "") {
         contentCards.forEach(card => {
             if (card.style.display === "none") return;
