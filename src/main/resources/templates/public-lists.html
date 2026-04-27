@@ -47,7 +47,7 @@
            Content Add / View Modal
         ========================= */
         .large-modal-box {
-            width: 85%;
+            width: 1300px;
             height: 90%;
             margin: 3% auto;
             padding: 15px;
@@ -61,6 +61,7 @@
             overflow-y: auto;
             border-bottom: 2px solid #ccc;
             padding-bottom: 10px;
+            width: 1285px;
         }
 
         .selected-content-section {
@@ -77,6 +78,13 @@
 
         .view-area {
             overflow-y: auto;
+        }
+        
+        .contents-add-list {
+            height: 300px;
+            width: 416px;
+            padding: 0px;
+            margin: 5px;
         }
 
         /* =========================
@@ -103,6 +111,13 @@
             position: absolute;
             bottom: 5px;
             right: 5px;
+        }
+
+        .position-relative {
+            height: 300px;
+            width: 416px;
+            padding: 0px;
+            margin: 5px;
         }
 
         /* =========================
@@ -379,12 +394,12 @@
         <div class="modal-close-area">
             <button onclick="closeModal()">×</button>
         </div>
+        <h5 class="mb-3">コンテンツ一覧</h5>
 
         <div class="content-list-section">
-            <h5 class="mb-3">コンテンツ一覧</h5>
             <div class="row" id="contentListArea">
 
-                <div class="col-md-3 mb-3" th:each="item : ${contentsList}">
+                <div class="col-md-3 mb-3 contents-add-list" th:each="item : ${contentsList}">
                     <div class="card position-relative"
                          th:attr="data-contents-id=${item.contentsId},
                                   data-tag=${item.tag},
@@ -420,13 +435,11 @@
 
             </div>
         </div>
-
+        <h5 class="mb-2">
+            選択済みコンテンツ
+            <span id="selectedCount" class="badge bg-secondary">0</span>
+        </h5>
         <div class="selected-content-section">
-            <h5 class="mb-2">
-                選択済みコンテンツ
-                <span id="selectedCount" class="badge bg-secondary">0</span>
-            </h5>
-
             <div class="row" id="selectedArea"></div>
         </div>
 
@@ -584,7 +597,7 @@ function addItem(btn) {
     newCard.appendChild(delBtn);
 
     const wrapper = document.createElement("div");
-    wrapper.className = "col-md-3 mb-3";
+    wrapper.className = "col-md-3 mb-3 contents-add-list";
     wrapper.id = "selected-" + contentsId;
     wrapper.appendChild(newCard);
 
