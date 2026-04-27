@@ -3,132 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>マイリスト</title>
-
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-
-    <style>
-        /* =========================
-           Modal Common
-        ========================= */
-        .custom-modal {
-            display: none;
-            z-index: 9999;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-box {
-            background: #fff;
-        }
-
-        .modal-close-area {
-            text-align: right;
-        }
-
-        .modal-center {
-            text-align: center;
-        }
-
-        /* =========================
-           Create List Modal
-        ========================= */
-        .create-list-modal-box {
-            width: 400px;
-            margin: 10% auto;
-            padding: 20px;
-        }
-
-        /* =========================
-           Large Modal
-        ========================= */
-        .large-modal-box {
-            width: 85%;
-            height: 90%;
-            margin: 3% auto;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .content-list-section {
-            flex: 1;
-            overflow-y: auto;
-            border-bottom: 2px solid #ccc;
-            padding-bottom: 10px;
-        }
-
-        .selected-content-section {
-            height: 220px;
-            overflow-y: auto;
-            padding-top: 10px;
-        }
-
-        .modal-footer-area {
-            text-align: center;
-            margin-top: 10px;
-            flex-shrink: 0;
-        }
-
-        .view-area {
-            overflow-y: auto;
-        }
-
-        /* =========================
-           Card Styles
-        ========================= */
-        .card-title-overlay {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            font-weight: bold;
-            z-index: 1;
-        }
-
-        .card-image-fixed {
-            height: 120px;
-            object-fit: cover;
-        }
-
-        .card-action-button {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-        }
-
-        /* =========================
-           Order Badge
-        ========================= */
-        .order-badge {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 24px;
-            height: 24px;
-            background: #0d6efd;
-            color: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 2;
-        }
-
-        .selected-card-title {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            font-weight: bold;
-            z-index: 1;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link th:href="@{/css/list.css}" rel="stylesheet">
 </head>
 
 <body>
@@ -263,61 +139,72 @@
             <button onclick="closeModal()">×</button>
         </div>
 
-        <!-- 上段 -->
-        <div class="content-list-section">
-            <h5 class="mb-3">コンテンツ一覧</h5>
+        <div class="modal-main-layout">
 
-            <div class="row" id="contentListArea">
-                <div class="col-md-3 mb-3"
-                     th:each="item : ${contentsList}">
+            <!-- 左：コンテンツ一覧 -->
+            <div class="content-list-section">
+                <h5 class="mb-3">コンテンツ一覧</h5>
 
-                    <div class="card position-relative"
-                         th:attr="data-contents-id=${item.contentsId},
-                                  data-tag=${item.tag},
-                                  data-user-id=${item.userId},
-                                  data-title=${item.contentsTitle},
-                                  data-text=${item.contentsText},
-                                  data-image=${item.imageUrl}">
+                <div class="content-list-scroll">
+                    <div id="contentListArea" class="short-list-area">
 
-                        <div class="card-title-overlay"
-                             th:text="${item.contentsTitle}">
+                        <div th:each="item : ${contentsList}"
+                             class="short-row-card"
+                             th:attr="data-contents-id=${item.contentsId},
+                                      data-tag=${item.tag},
+                                      data-user-id=${item.userId},
+                                      data-title=${item.contentsTitle},
+                                      data-text=${item.contentsText},
+                                      data-image=${item.imageUrl}">
+
+                            <div class="short-image-area">
+                                <img class="short-thumbnail"
+                                     th:src="@{${item.imageUrl}}">
+                            </div>
+
+                            <div class="short-info-area">
+
+                                <div class="short-title"
+                                     th:text="${item.contentsTitle}">
+                                </div>
+
+                                <div class="short-tag-area">
+                                    <span class="short-tag"
+                                          th:each="tag : ${item.contentsTagArray}"
+                                          th:text="${tag}">
+                                    </span>
+                                </div>
+
+                                <p class="short-description"
+                                   th:text="${item.contentsText}">
+                                </p>
+
+                            </div>
+
+                            <button class="btn btn-primary btn-sm add-btn short-action-button"
+                                    onclick="addItem(this)">
+                                追加
+                            </button>
+
                         </div>
-
-                        <img class="card-img-top card-image-fixed"
-                             th:src="@{${item.imageUrl}}"/>
-
-                        <!-- タグ -->
-                        <div class="mb-4">
-                            <span
-                                class="badge bg-secondary me-1"
-                                th:each="tag : ${item.contentsTagArray}"
-                                th:text="${tag}">
-                            </span>
-                        </div>
-
-                        <div class="card-body pb-5">
-                            <p th:text="${item.contentsText}"></p>
-                        </div>
-
-                        <button class="btn btn-primary btn-sm add-btn card-action-button"
-                                onclick="addItem(this)">
-                            追加
-                        </button>
 
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 下段 -->
-        <div class="selected-content-section">
-            <h5 class="mb-2">
-                選択済みコンテンツ
-                <span id="selectedCount"
-                      class="badge bg-secondary">0</span>
-            </h5>
+            <!-- 右：選択済み -->
+            <div class="selected-content-section">
+                <h5 class="mb-2">
+                    選択済みコンテンツ
+                    <span id="selectedCount"
+                          class="badge bg-secondary">0</span>
+                </h5>
 
-            <div class="row" id="selectedArea"></div>
+                <div class="selected-content-scroll">
+                    <div id="selectedArea" class="short-list-area"></div>
+                </div>
+            </div>
+
         </div>
 
         <div class="modal-footer-area">
@@ -346,8 +233,8 @@
 
         <h5>リスト内コンテンツ</h5>
 
-        <div id="viewArea"
-             class="row view-area"></div>
+        <!-- ★ row をやめて縦並び専用レイアウトに変更 -->
+        <div id="viewArea" class="view-list-area"></div>
 
     </div>
 </div>
@@ -356,43 +243,6 @@
 <script>
 let currentListId = null;
 const selectedIds = new Set();
-
-function openViewModal(btn) {
-    currentListId = btn.getAttribute("data-list-id");
-
-    fetch(`/my-lists/selected-contents/${currentListId}`)
-        .then(res => res.json())
-        .then(data => {
-
-            const viewArea = document.getElementById("viewArea");
-            viewArea.innerHTML = "";
-
-            data.forEach(item => {
-
-                const originalCard = document.querySelector(
-                    `#contentListArea .card[data-contents-id="${item.contentsId}"]`
-                );
-
-                if (!originalCard) return;
-
-                const clone = originalCard.cloneNode(true);
-
-                // ボタン置き換え
-                let btn = clone.querySelector(".add-btn");
-                if (btn) {
-                    btn.textContent = "閲覧";
-                    btn.onclick = function () {
-                        viewItem(btn);
-                    };
-                }
-
-                viewArea.appendChild(clone);
-            });
-
-        });
-
-    document.getElementById("viewModal").style.display = "block";
-}
 
 function closeViewModal() {
     document.getElementById("viewModal").style.display = "none";
@@ -424,7 +274,7 @@ function openModal(btn) {
 
                 // 元カード取得
                 const originalCard = document.querySelector(
-                    `#contentListArea .card[data-contents-id="${contentsId}"]`
+                    `#contentListArea [data-contents-id="${contentsId}"]`
                 );
 
                 if (!originalCard) return;
@@ -440,75 +290,187 @@ function openModal(btn) {
     document.getElementById("modal").style.display = "block";
 }
 
+function openViewModal(btn) {
+    currentListId = btn.getAttribute("data-list-id");
+
+    fetch(`/my-lists/selected-contents/${currentListId}`)
+        .then(res => res.json())
+        .then(data => {
+
+            const viewArea = document.getElementById("viewArea");
+            viewArea.innerHTML = "";
+
+            data.forEach(item => {
+
+                const contentsId = item.contentsId;
+                
+                const originalCard = document.querySelector(
+                    `#contentListArea [data-contents-id="${contentsId}"]`
+                );
+
+                if (!originalCard) return;
+
+                // ===== 横並びレイアウトを新規作成 =====
+                const wrapper = document.createElement("div");
+                wrapper.className = "view-row-card";
+
+                // 左：画像
+                const imageArea = document.createElement("div");
+                imageArea.className = "view-image-area";
+
+                const img = originalCard.querySelector("img");
+                if (img) {
+                    const cloneImg = img.cloneNode(true);
+                    cloneImg.className = "view-thumbnail";
+                    imageArea.appendChild(cloneImg);
+                } else {
+                    imageArea.innerHTML = "<div class='view-no-image'>画像</div>";
+                }
+
+                // 右：情報
+                const infoArea = document.createElement("div");
+                infoArea.className = "view-info-area";
+
+                // タイトル
+                const title = document.createElement("h5");
+                title.className = "view-title";
+                title.textContent =
+                    originalCard.getAttribute("data-title") || "タイトル";
+
+                // タグ
+                const tagArea = document.createElement("div");
+                tagArea.className = "view-tag-area";
+
+                const tagText = originalCard.getAttribute("data-tag") || "";
+                if (tagText) {
+                    tagText.split(",").forEach(tag => {
+                        const span = document.createElement("span");
+                        span.className = "view-tag";
+                        span.textContent = tag.trim();
+                        tagArea.appendChild(span);
+                    });
+                } else {
+                    const span = document.createElement("span");
+                    span.className = "view-tag";
+                    span.textContent = "none";
+                    tagArea.appendChild(span);
+                }
+
+                // 説明
+                const desc = document.createElement("p");
+                desc.className = "view-description";
+                desc.textContent = (originalCard.getAttribute("data-text") || "説明なし");
+
+                // 閲覧ボタン
+                const viewBtn = document.createElement("button");
+                viewBtn.className = "btn btn-info btn-sm mt-2 show-contents-button";
+                viewBtn.textContent = "閲覧";
+                viewBtn.onclick = function () {
+                    const contentsId =
+                        originalCard.getAttribute("data-contents-id");
+                    window.location.href =
+                        `/contents/view/${contentsId}?listId=${currentListId}`;
+                };
+
+                infoArea.appendChild(title);
+                infoArea.appendChild(tagArea);
+                infoArea.appendChild(desc);
+                infoArea.appendChild(viewBtn);
+
+                wrapper.appendChild(imageArea);
+                wrapper.appendChild(infoArea);
+
+                viewArea.appendChild(wrapper);
+            });
+
+        });
+
+    document.getElementById("viewModal").style.display = "block";
+}
+
 function closeModal() {
     document.getElementById("modal").style.display = "none";
 }
 
 function addItem(btn) {
-    const card = btn.closest(".card");
+    const card = btn.closest("[data-contents-id]");
     const contentsId = card.getAttribute("data-contents-id");
 
     if (selectedIds.has(contentsId)) return;
+
     selectedIds.add(contentsId);
 
-    // 元カードの追加ボタンを「追加済み」に
     btn.textContent = "追加済み";
     btn.disabled = true;
 
-    // ---- 選択エリア用カードを新規作成 ----
     const newCard = document.createElement("div");
-    newCard.className = "card position-relative";
+    newCard.className = "short-row-card";
+    newCard.id = "selected-" + contentsId;
+    newCard.setAttribute("data-contents-id", contentsId);
 
-    // 順番バッジ（右上）
+    // 順番
     const badge = document.createElement("div");
     badge.className = "order-badge";
-    badge.style.cssText =
-        "position:absolute; top:-10px; right:-10px; width:24px; height:24px;" +
-        "background:#0d6efd; color:#fff; border-radius:50%;" +
-        "display:flex; align-items:center; justify-content:center;" +
-        "font-size:12px; font-weight:bold; z-index:2;";
     badge.textContent = selectedIds.size;
     newCard.appendChild(badge);
 
-    // タイトル
-    const titleDiv = document.createElement("div");
-    titleDiv.style.cssText = "position:absolute; top:5px; left:5px; font-weight:bold; z-index:1;";
-    titleDiv.textContent = card.getAttribute("data-title") || "";
-    newCard.appendChild(titleDiv);
-
     // 画像
+    const imageArea = document.createElement("div");
+    imageArea.className = "short-image-area";
+
     const img = card.querySelector("img");
     if (img) {
         const cloneImg = img.cloneNode(true);
-        newCard.appendChild(cloneImg);
+        cloneImg.className = "short-thumbnail";
+        imageArea.appendChild(cloneImg);
     }
 
-    // テキスト
-    const bodyDiv = document.createElement("div");
-    bodyDiv.className = "card-body pb-5";
-    const p = document.createElement("p");
-    p.textContent = card.getAttribute("data-text") || "";
-    bodyDiv.appendChild(p);
-    newCard.appendChild(bodyDiv);
+    newCard.appendChild(imageArea);
+
+    // 情報
+    const infoArea = document.createElement("div");
+    infoArea.className = "short-info-area";
+
+    const title = document.createElement("div");
+    title.className = "short-title";
+    title.textContent = card.getAttribute("data-title") || "";
+
+    const tagArea = document.createElement("div");
+    tagArea.className = "short-tag-area";
+
+    const tagText = card.getAttribute("data-tag") || "";
+    if (tagText) {
+        tagText.split(",").forEach(tag => {
+            const span = document.createElement("span");
+            span.className = "short-tag";
+            span.textContent = tag.trim();
+            tagArea.appendChild(span);
+        });
+    }
+
+    const desc = document.createElement("p");
+    desc.className = "short-description";
+    desc.textContent = card.getAttribute("data-text") || "";
+
+    infoArea.appendChild(title);
+    infoArea.appendChild(tagArea);
+    infoArea.appendChild(desc);
+
+    newCard.appendChild(infoArea);
 
     // 削除ボタン
     const delBtn = document.createElement("button");
-    delBtn.className = "btn btn-danger btn-sm";
-    delBtn.style.cssText = "position:absolute; bottom:5px; right:5px;";
+    delBtn.className = "btn btn-danger btn-sm short-action-button";
     delBtn.textContent = "削除";
-    delBtn.dataset.contentsId = contentsId;
-    // ★ addEventListener で登録（onclickではなく）
+
     delBtn.addEventListener("click", function () {
         removeItem(contentsId);
     });
+
     newCard.appendChild(delBtn);
 
-    const wrapper = document.createElement("div");
-    wrapper.className = "col-md-3 mb-3";
-    wrapper.id = "selected-" + contentsId;
-    wrapper.appendChild(newCard);
+    document.getElementById("selectedArea").appendChild(newCard);
 
-    document.getElementById("selectedArea").appendChild(wrapper);
     updateCount();
 }
 
@@ -518,7 +480,7 @@ function removeItem(contentsId) {
 
     // 元カードの追加ボタンを戻す
     const originalCard = document.querySelector(
-        `#contentListArea .card[data-contents-id="${contentsId}"]`
+        `#contentListArea [data-contents-id="${contentsId}"]`
     );
     if (originalCard) {
         const originalBtn = originalCard.querySelector(".add-btn");
@@ -537,7 +499,7 @@ function updateCount() {
 
 function submitSelected() {
 
-    const wrappers = document.querySelectorAll("#selectedArea .col-md-3");
+    const wrappers = document.querySelectorAll("#selectedArea .short-row-card");
 
     if (wrappers.length === 0) {
         alert("コンテンツが選択されていません。");
@@ -550,7 +512,7 @@ function submitSelected() {
     let dataList = [];
 
     wrappers.forEach(wrapper => {
-        const card = wrapper.querySelector(".card");
+        const card = wrapper;
         const contentsId = wrapper.id.replace("selected-", "");
         const order = card.querySelector(".order-badge").textContent;
 

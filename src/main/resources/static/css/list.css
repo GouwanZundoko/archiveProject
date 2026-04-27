@@ -1,0 +1,348 @@
+/* =========================
+    Modal Common
+========================= */
+.custom-modal {
+    display: none;
+    z-index: 9999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-box {
+    background: #fff;
+}
+
+.modal-close-area {
+    text-align: right;
+}
+
+.modal-center {
+    text-align: center;
+}
+
+/* =========================
+    Create List Modal
+========================= */
+.create-list-modal-box {
+    width: 400px;
+    margin: 10% auto;
+    padding: 20px;
+}
+
+/* =========================
+    Large Modal
+========================= */
+.large-modal-box {
+    width: 85%;
+    height: 90%;
+    margin: 3% auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.content-list-section {
+    flex: 1;
+    overflow-y: auto;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 10px;
+}
+
+.modal-footer-area {
+    text-align: center;
+    margin-top: 10px;
+    flex-shrink: 0;
+}
+
+.view-area {
+    overflow-y: auto;
+}
+
+/* =========================
+    Card Styles
+========================= */
+.card-title-overlay {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-weight: bold;
+    z-index: 1;
+}
+
+.card-image-fixed {
+    height: 120px;
+    object-fit: cover;
+}
+
+.card-action-button {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}
+
+/* =========================
+    Order Badge
+========================= */
+.selected-card-title {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-weight: bold;
+    z-index: 1;
+}
+
+/* =========================
+    View Modal List Layout
+========================= */
+
+.view-list-area {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    padding-top: 10px;
+}
+
+.view-row-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    border: 1px solid #999;
+    background: #f5f5f5;
+    padding: 12px;
+}
+
+.view-image-area {
+    width: 140px;
+    flex-shrink: 0;
+}
+
+.view-thumbnail {
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    border: 1px solid #000;
+}
+
+.view-no-image {
+    width: 100%;
+    height: 130px;
+    background: #000;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.view-info-area {
+    flex: 1;
+}
+
+.view-title {
+    margin: 0 0 8px;
+    font-weight: bold;
+}
+
+.view-tag-area {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.view-tag {
+    background: #888;
+    color: #fff;
+    padding: 4px 10px;
+    font-size: 13px;
+}
+
+.view-description {
+    margin: 0;
+}
+
+.show-contents-button {
+    float: right;
+}
+
+/* =========================
+   Large Modal（固定表示対応）
+========================= */
+
+.large-modal-box {
+    width: 90%;
+    height: 92%;
+    margin: 2% auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fff;
+}
+
+/* 上段：コンテンツ一覧 */
+.content-list-section {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 16px;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 5;
+}
+
+/* 選択済み一覧を縦並び */
+.selected-list-area {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* =========================
+   Large Modal（変更部分）
+========================= */
+
+.large-modal-box {
+    width: 90%;
+    height: 90%;
+    margin: 2% auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 左右2カラム */
+.modal-main-layout {
+    flex: 1;
+    display: flex;
+    gap: 20px;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* 左：コンテンツ一覧 */
+.content-list-section {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    border-right: 2px solid #ddd;
+    padding-right: 15px;
+    min-height: 0;
+}
+
+.content-list-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* 右：選択済み */
+.selected-content-section {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.selected-content-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* =========================
+   共通：短いリスト風カード
+========================= */
+
+.short-list-area {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.short-row-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    border: 1px solid #bbb;
+    background: #f8f8f8;
+    padding: 10px;
+    position: relative;
+    min-height: 120px;
+    width: 99%;
+}
+
+.short-image-area {
+    width: 120px;
+    flex-shrink: 0;
+}
+
+.short-thumbnail {
+    width: 100%;
+    height: 90px;
+    object-fit: cover;
+    border: 1px solid #ccc;
+}
+
+.short-info-area {
+    flex: 1;
+    min-width: 0;
+}
+
+.short-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.short-tag-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.short-tag {
+    background: #888;
+    color: #fff;
+    font-size: 12px;
+    padding: 3px 8px;
+}
+
+.short-description {
+    font-size: 14px;
+    margin: 0;
+}
+
+/* ボタン */
+.short-action-button {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
+/* 順番 */
+.order-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    background: #0d6efd;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 2;
+}
